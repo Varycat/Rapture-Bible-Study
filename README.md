@@ -1,1 +1,3 @@
-Upload all six app files to the ROOT of your GitHub repository. Then: Settings > Pages > Deploy from a branch > main > /(root) > Save. Open the Pages address in Safari on iPhone, tap Share > Add to Home Screen. Send the same Pages address to your daughter so she can do the same.
+# Rapture Bible Study v2
+
+Upload index.html, manifest.webmanifest, sw.js, and all three PNG icons to the ROOT of the GitHub repository. GitHub Pages should use main / (root).

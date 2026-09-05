@@ -1,10 +1,10 @@
 {
-  "name": "Rapture of the Church \u2014 Bible Study",
+  "name": "Rapture of the Church Bible Study",
   "short_name": "Rapture Study",
-  "start_url": "./",
+  "start_url": "./?v=2",
   "display": "standalone",
-  "background_color": "#f6f6f4",
-  "theme_color": "#17233d",
+  "background_color": "#f5f7fb",
+  "theme_color": "#153c78",
   "icons": [
     {
       "src": "icon-192.png",
