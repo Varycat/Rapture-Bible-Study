@@ -1,0 +1,11 @@
+V23 adds per-study banner photos, configurable in Settings.
+- New Settings section "🖼 Study Banner Photos": one row per study you can see,
+  each with a photo link field, an Upload button (device photos are resized and
+  compressed), and Remove. Changes preview live; Save Settings makes them stick.
+- A study with a photo shows it on its library card banner (icon chip stays on
+  top) and on the study page title header, with soft overlays for readability.
+- Studies without a photo keep the colored banner from the theme settings.
+- Like all appearance settings, banner photos are saved per device.
+- Floating panels (Notes / Search / Bible) already follow the theme's card,
+  text, and primary colors from Settings.
+- Cache/assets bumped to v23.

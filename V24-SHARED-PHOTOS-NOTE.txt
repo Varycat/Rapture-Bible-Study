@@ -1,0 +1,17 @@
+V24 moves the hero and study banner photos into Firestore so every reader sees them.
+- New Firestore collection: branding
+  * branding/hero            {src} — the hero background photo
+  * branding/banner-<study>  {src} — one per study banner photo
+- Only the owner can change them; every signed-in reader loads and sees them.
+- The Settings photo controls (Hero background photo, Study Banner Photos) are
+  now OWNER-ONLY and publish to Firestore when you click Save Settings.
+- Readers no longer see those controls; their other appearance preferences
+  (colors, fonts, layout) remain per-device as before.
+- Old per-device photos from v22/v23 are ignored — set the photos once as the
+  owner and Save Settings to publish for everyone.
+
+REQUIRED: publish the updated firestore.rules (adds the /branding rules, on top
+of the /bibles and /notes rules from v20). Without it, Save Settings will show
+"Could not save the photos to Firestore".
+
+Cache/assets bumped to v24.

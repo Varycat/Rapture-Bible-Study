@@ -1,0 +1,10 @@
+V22 adds a customizable hero background photo.
+- Settings -> Titles & Text now has:
+  * "Hero background photo" (paste an image link)
+  * "Or upload a photo from this device" (resized/compressed automatically)
+  * "Remove hero photo" (returns to the built-in gradient)
+- The photo fills the welcome banner edge to edge with a soft white overlay on
+  the left so the hero title/tagline stay readable, like the reference design.
+- Hero title and tagline were already editable (Home hero title / tagline).
+- Like all appearance settings, the photo is saved per device in the browser.
+- Cache/assets bumped to v22.

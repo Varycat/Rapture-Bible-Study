@@ -414,3 +414,27 @@ body.card-rounded{--app-radius:18px}
 /* Quick Links: rows with right chevrons */
 .libraryBottom article button{display:flex;justify-content:space-between;align-items:center;font-weight:700;min-height:44px}
 .libraryBottom article button::after{content:'›';color:var(--app-primary,#0c73e6);font-size:22px;font-weight:800;line-height:1}
+
+/* ---------- v22 Hero background photo ---------- */
+.hero.hasPhoto{
+  background:
+    linear-gradient(90deg,rgba(246,250,255,.9) 0%,rgba(246,250,255,.62) 40%,rgba(246,250,255,.06) 72%,rgba(246,250,255,0) 100%),
+    var(--hero-photo) center/cover no-repeat !important;
+}
+.hero.hasPhoto:after{background:linear-gradient(180deg,transparent 55%,rgba(20,40,80,.22))}
+.hero.hasPhoto .heroBook{display:none}
+.hero.hasPhoto .heroVerse{background:rgba(248,251,255,.82);backdrop-filter:blur(4px)}
+
+/* ---------- v23 Study banner photos ---------- */
+.studyThumb.hasPhoto{
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(15,35,75,.14)),var(--card-photo) center/cover no-repeat !important;
+}
+.studyTitleCard.hasPhoto{
+  background:linear-gradient(90deg,rgba(255,255,255,.93) 0%,rgba(255,255,255,.72) 45%,rgba(255,255,255,.28) 100%),var(--card-photo) center/cover no-repeat !important;
+}
+.bannerSettingsList{display:grid;gap:10px;margin-top:10px}
+.bannerRow{display:grid;grid-template-columns:1fr;gap:6px;border:1px solid var(--line,#dce6f2);border-radius:11px;padding:10px;background:var(--app-card,#fff)}
+.bannerRow input[type="url"]{width:100%;min-height:40px;border:1px solid var(--line,#dce6f2);border-radius:9px;padding:8px 10px;font:inherit;background:var(--app-card,#fff);color:inherit}
+.bannerRowBtns{display:flex;gap:8px}
+.bannerUpload{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line,#dce6f2);border-radius:9px;padding:8px 12px;font-weight:800;cursor:pointer;background:var(--app-card,#fff)}
+.bannerRowBtns button{border:1px solid #e4aaa2;background:#fff3f1;color:#a33326;border-radius:9px;padding:8px 12px;font-weight:800;cursor:pointer}

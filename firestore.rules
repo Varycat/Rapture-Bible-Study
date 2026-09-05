@@ -39,6 +39,12 @@ service cloud.firestore {
       allow delete: if isOwner();
     }
 
+    // Shared appearance photos (hero + study banners): owner sets, everyone sees.
+    match /branding/{item} {
+      allow read: if signedIn();
+      allow create, update, delete: if isOwner();
+    }
+
     // Installed Bible versions: owner installs, every signed-in reader can read.
     match /bibles/{versionId} {
       allow read: if signedIn();

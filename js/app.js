@@ -56,8 +56,12 @@ function applySettings(s){
   const heroTitle=$('#heroTitle'); if(heroTitle)heroTitle.textContent=s.heroTitle||s.title;
   const heroTagline=$('#heroTagline'); if(heroTagline)heroTagline.textContent=s.heroTagline;
   $$('.footerMessage').forEach(x=>x.textContent=s.footer);
+  applyPhotos();
+  if(studies.length&&!$('#libraryView').hidden)renderLibrary();
   document.title=s.title;
 }
+let heroImageValue=null, bannersDraft=null;
+let branding={hero:'',banners:{}};
 function fillSettings(){
   const s=settings();
   $('#settingTitle').value=s.title;
@@ -65,6 +69,28 @@ function fillSettings(){
   $('#settingHeroTitle').value=s.heroTitle||s.title;
   $('#settingHeroTagline').value=s.heroTagline;
   $('#settingFooter').value=s.footer;
+  heroImageValue=branding.hero||'';
+  $('#settingHeroImage').value=(branding.hero&&!branding.hero.startsWith('data:'))?branding.hero:'';
+  $('#settingHeroImageFile').value='';
+  const hp=$('#heroPhotoControls');if(hp)hp.hidden=!owner;
+  const sbs=$('#studyBannerSection');if(sbs)sbs.hidden=!owner;
+  bannersDraft={...branding.banners};
+  const bw=$('#studyBannerSettings');
+  if(bw){
+    const list=visibleStudies();
+    bw.innerHTML=list.length?list.map(st=>`<div class="bannerRow"><b>${st.icon||'📖'} ${esc(st.title)}</b><input type="url" placeholder="https://... photo link" data-banner-url="${st.id}" value="${bannersDraft[st.id]&&!String(bannersDraft[st.id]).startsWith('data:')?esc(bannersDraft[st.id]):''}"><div class="bannerRowBtns"><label class="bannerUpload">⬆ Upload<input type="file" accept="image/*" data-banner-file="${st.id}" hidden></label><button type="button" data-banner-clear="${st.id}">Remove</button></div></div>`).join(''):'<p class="smallHelp">No studies are visible yet.</p>';
+    $$('[data-banner-url]').forEach(i=>i.addEventListener('input',()=>{const v=i.value.trim();if(v)bannersDraft[i.dataset.bannerUrl]=v;else delete bannersDraft[i.dataset.bannerUrl];applySettings(readSettings())}));
+    $$('[data-banner-file]').forEach(f=>f.addEventListener('change',async()=>{
+      try{const d=await fileToCompressedDataURL(f.files[0],1200,220000,300000);if(d){bannersDraft[f.dataset.bannerFile]=d;const u=bw.querySelector(`[data-banner-url="${f.dataset.bannerFile}"]`);if(u)u.value='';applySettings(readSettings())}}
+      catch(e){openDialog('Study Banner',`<p>${e.message}</p>`)}
+    }));
+    $$('[data-banner-clear]').forEach(b=>b.addEventListener('click',()=>{
+      delete bannersDraft[b.dataset.bannerClear];
+      const u=bw.querySelector(`[data-banner-url="${b.dataset.bannerClear}"]`);if(u)u.value='';
+      const f=bw.querySelector(`[data-banner-file="${b.dataset.bannerClear}"]`);if(f)f.value='';
+      applySettings(readSettings());
+    }));
+  }
   $('#settingFont').value=s.font;
   $('#settingFontSize').value=s.fontSize;
   $('#fontSizeOutput').value=s.fontSize+'%';
@@ -169,7 +195,7 @@ function closeSide(){$('#sidebar').classList.remove('open')}
 function visibleStudies(){return owner?studies:studies.filter(s=>allowedStudies.includes(s.id))}
 function renderLibrary(){
   const list=visibleStudies();
-  $('#featuredStudies').innerHTML=list.length?list.map((s,i)=>`<article class="studyCard ${i===0?'primary':''}"><div class="studyThumb"><span class="thumbIcon">${s.icon||'📖'}</span></div><div class="cardBody"><h3 class="thumbTitle">${s.title}</h3><div class="sub">${s.subtitle||''}</div><p>${s.description||''}</p><button data-study="${s.id}">Open Study →</button></div></article>`).join(''):'<article class="studyCard"><div class="cardBody"><h3>No studies unlocked yet</h3><p>Ask the owner to give you access to your first study.</p></div></article>';
+  $('#featuredStudies').innerHTML=list.length?list.map((s,i)=>`<article class="studyCard ${i===0?'primary':''}"><div class="studyThumb${effBanners()[s.id]?' hasPhoto':''}"${effBanners()[s.id]?` style="--card-photo:url('${effBanners()[s.id]}')"`:''}><span class="thumbIcon">${s.icon||'📖'}</span></div><div class="cardBody"><h3 class="thumbTitle">${s.title}</h3><div class="sub">${s.subtitle||''}</div><p>${s.description||''}</p><button data-study="${s.id}">Open Study →</button></div></article>`).join(''):'<article class="studyCard"><div class="cardBody"><h3>No studies unlocked yet</h3><p>Ask the owner to give you access to your first study.</p></div></article>';
   $$('[data-study]').forEach(b=>b.onclick=()=>openStudy(b.dataset.study));
 }
 function renderSidebar(q=''){
@@ -181,6 +207,12 @@ function renderSidebar(q=''){
   $$('#sideNav [data-study]').forEach(b=>b.onclick=()=>openStudy(b.dataset.study));
   const all=$('#navAllStudies'); if(all)all.onclick=showLibrary;
 }
+function applyStudyHeaderBanner(){
+  const tc=document.querySelector('.studyTitleCard');if(!tc)return;
+  const ban=currentStudy&&effBanners()[currentStudy.id];
+  if(ban){tc.classList.add('hasPhoto');tc.style.setProperty('--card-photo',`url("${ban}")`)}
+  else{tc.classList.remove('hasPhoto');tc.style.removeProperty('--card-photo')}
+}
 async function openStudy(id){
   id=normalizeStudyId(id);
   if(!owner&&!allowedStudies.includes(id))return;
@@ -188,6 +220,7 @@ async function openStudy(id){
   try{const sdata=await loadStudyContent(id);Object.assign(currentStudy,sdata)}catch(e){openDialog('Study Not Ready',`<p>${e.message}</p>`);return}
   $('#studyTitle').textContent=currentStudy.title;$('#studyDescription').textContent=currentStudy.description||'';$('#studyCrumb').textContent=currentStudy.title;$('#crumbStudy').textContent=currentStudy.title;
   $('#studyVideos').innerHTML=videoGrid(currentStudy.videos);
+  applyStudyHeaderBanner();
   showStudy();
 }
 function renderTopicIndex(q=''){
@@ -381,17 +414,17 @@ function addExtraSection(){
   $('#editExtraTitle').value='';$('#editExtraContent').value='';renderExtraSectionEditor();
 }
 
-async function fileToCompressedDataURL(file){
+async function fileToCompressedDataURL(file,max=1000,soft=260000,hard=350000){
   if(!file)return '';
   const bitmap=await createImageBitmap(file);
-  const max=1000, scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height));
+  const scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height));
   const canvas=document.createElement('canvas');
   canvas.width=Math.max(1,Math.round(bitmap.width*scale));
   canvas.height=Math.max(1,Math.round(bitmap.height*scale));
   const ctx=canvas.getContext('2d');ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
   let quality=.78, data=canvas.toDataURL('image/jpeg',quality);
-  while(data.length>260000 && quality>.35){quality-=.1;data=canvas.toDataURL('image/jpeg',quality)}
-  if(data.length>350000)throw new Error('Image is still too large. Please choose a smaller image.');
+  while(data.length>soft && quality>.35){quality-=.1;data=canvas.toDataURL('image/jpeg',quality)}
+  if(data.length>hard)throw new Error('Image is still too large. Please choose a smaller image.');
   return data;
 }
 
@@ -702,6 +735,41 @@ function printHTML(title,bodyHTML){
   setTimeout(()=>w.print(),350);
 }
 
+/* ===== v24: Shared photos in Firestore (branding) ===== */
+function effBanners(){return bannersDraft===null?branding.banners:bannersDraft}
+function applyPhotos(){
+  const hero=document.querySelector('.hero');
+  const h=heroImageValue===null?branding.hero:heroImageValue;
+  if(hero){
+    if(h){hero.classList.add('hasPhoto');hero.style.setProperty('--hero-photo',`url("${h}")`)}
+    else{hero.classList.remove('hasPhoto');hero.style.removeProperty('--hero-photo')}
+  }
+  applyStudyHeaderBanner();
+}
+async function loadBranding(){
+  try{
+    const snap=await getDocs(collection(db,'branding'));
+    const b={hero:'',banners:{}};
+    snap.docs.forEach(d=>{const src=d.data().src||'';if(d.id==='hero')b.hero=src;else if(d.id.startsWith('banner-'))b.banners[d.id.slice(7)]=src});
+    branding=b;
+  }catch(e){console.warn('Branding not loaded:',e.message)}
+  applyPhotos();
+  if(studies.length&&!$('#libraryView').hidden)renderLibrary();
+}
+async function saveBranding(){
+  if(!owner)return;
+  const hero=heroImageValue===null?branding.hero:heroImageValue;
+  const banners=bannersDraft===null?branding.banners:bannersDraft;
+  const batch=writeBatch(db);
+  const now=new Date().toISOString();
+  if(hero)batch.set(doc(db,'branding','hero'),{src:hero,updatedAt:now});
+  else batch.delete(doc(db,'branding','hero'));
+  Object.keys(banners).forEach(id=>batch.set(doc(db,'branding','banner-'+id),{src:banners[id],updatedAt:now}));
+  Object.keys(branding.banners).forEach(id=>{if(!(id in banners))batch.delete(doc(db,'branding','banner-'+id))});
+  await batch.commit();
+  branding={hero,banners:{...banners}};
+}
+
 function bind(){
   const on=(sel,event,fn)=>{
     const el=$(sel);
@@ -759,14 +827,29 @@ function bind(){
     const o=$('#studyBarSizeOut'); if(o)o.value=e.target.value+'%';
     applySettings(readSettings());
   });
+  on('#settingHeroImage','input',e=>{heroImageValue=e.target.value.trim();applySettings(readSettings())});
+  on('#settingHeroImageFile','change',async e=>{
+    try{
+      heroImageValue=await fileToCompressedDataURL(e.target.files[0],1600,420000,600000);
+      $('#settingHeroImage').value='';
+      applySettings(readSettings());
+    }catch(err){openDialog('Hero Photo',`<p>${err.message}</p>`)}
+  });
+  on('#clearHeroImage','click',()=>{heroImageValue='';$('#settingHeroImage').value='';$('#settingHeroImageFile').value='';applySettings(readSettings())});
   ['settingTitle','settingSubtitle','settingHeroTitle','settingHeroTagline','settingFooter','settingFont','settingPrimary','settingBackground','settingText','settingCard','settingTopbarBg','settingTabBg','settingTabText','settingSidebarBg','settingSidebarText','settingStudyBar','settingStudyBarText','settingStudyTitleFont','settingDensity','settingCardStyle','settingSidebar','settingQuotes','settingAnimations']
     .forEach(id=>on('#'+id,'input',()=>applySettings(readSettings())));
 
   $$('[data-preset]').forEach(b=>b.addEventListener('click',()=>applyPreset(b.dataset.preset)));
-  on('#saveSettings','click',()=>{
+  on('#saveSettings','click',async()=>{
     const s=readSettings();
     localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));
     applySettings(s);
+    if(owner){
+      const btn=$('#saveSettings');btn.disabled=true;btn.textContent='Saving…';
+      try{await saveBranding()}
+      catch(e){openDialog('Save Photos',`<p>Could not save the photos to Firestore: ${e.message}</p><p>Check that the latest firestore.rules are published.</p>`)}
+      btn.disabled=false;btn.textContent='Save Settings';
+    }
     $('#settingsDialog')?.close();
   });
   on('#resetSettings','click',()=>{
@@ -846,6 +929,7 @@ onAuthStateChanged(auth,async u=>{
   renderOwnerPanel().catch(()=>{});
   loadNotes().catch(()=>{});
   refreshBibleList().catch(()=>{});
+  loadBranding();
   showLibrary();
 });
 

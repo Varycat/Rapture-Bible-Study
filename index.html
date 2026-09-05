@@ -4,7 +4,7 @@
 <meta name="theme-color" content="#f8fbff"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Bible Studies">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png">
-<link rel="stylesheet" href="css/app.css?v=21"><title>Bible Study Library</title>
+<link rel="stylesheet" href="css/app.css?v=24"><title>Bible Study Library</title>
 <style id="v16ButtonFix">
   .topicActions{
     grid-column:1 / -1 !important;
@@ -318,6 +318,16 @@
       <label>Footer message
         <input id="settingFooter" type="text" maxlength="140" placeholder="Let the Bible speak...">
       </label>
+      <div id="heroPhotoControls">
+        <label>Hero background photo <small>Owner only — saved to Firestore, shown to every reader</small>
+          <input id="settingHeroImage" type="url" placeholder="https://...">
+        </label>
+        <label>Or upload a photo from this device
+          <input id="settingHeroImageFile" type="file" accept="image/*">
+        </label>
+        <button type="button" id="clearHeroImage" class="secondarySettingBtn">Remove hero photo</button>
+        <p class="smallHelp">The photo fills the big welcome banner for all readers. A soft white overlay keeps the title readable. Click Save Settings to publish it.</p>
+      </div>
     </section>
 
     <section class="settingsSection">
@@ -404,6 +414,12 @@
       <label class="switchRow"><input id="settingQuotes" type="checkbox"> Show Scripture quote areas</label>
       <label class="switchRow"><input id="settingAnimations" type="checkbox"> Use subtle animations</label>
       <p class="smallHelp">These appearance choices are saved on the current device. Each reader may have their own appearance preferences.</p>
+    </section>
+
+    <section class="settingsSection" id="studyBannerSection">
+      <h3>🖼 Study Banner Photos</h3>
+      <p class="smallHelp">Owner only — banner photos are saved to Firestore and shown to every reader. Paste a link or upload from this device; leave empty to keep the colored banner. The photo also shows on that study's title header. Click Save Settings to publish.</p>
+      <div id="studyBannerSettings" class="bannerSettingsList"></div>
     </section>
 
     <section class="settingsSection adminSection" id="bibleAdminSection" hidden>
@@ -520,5 +536,5 @@
 })();
 </script>
 
-<script type="module" src="js/app.js?v=21"></script>
+<script type="module" src="js/app.js?v=24"></script>
 </body></html>
