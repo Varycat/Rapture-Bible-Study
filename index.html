@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bible Studies">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="css/app.css">
+<title>Bible Study Library</title>
+</head>
+<body>
+<header class="topbar">
+  <button class="menuBtn" id="menuBtn">☰</button>
+  <div class="brand"><span class="book">📖</span><div><strong>Bible Study Library</strong><small>INTERACTIVE BIBLE STUDIES</small></div></div>
+  <div class="quote">“Search the Scriptures...”<br><small>John 5:39</small></div>
+  <div class="topBtns"><button id="homeBtn">⌂<span>Home</span></button><button id="aboutBtn">ⓘ<span>About</span></button></div>
+</header>
+
+<div class="layout">
+  <aside id="sidebar" class="sidebar">
+    <div class="sideTitle"><h2 id="sideHeading">Studies</h2><button id="closeSide">×</button></div>
+    <input id="search" placeholder="Search studies or topics...">
+    <nav id="sideNav"></nav>
+    <blockquote>“All Scripture is given by inspiration of God...”<br><b>2 Timothy 3:16</b></blockquote>
+  </aside>
+
+  <main>
+    <section id="libraryView">
+      <div class="libraryHero">
+        <div><h1>Bible Study Library</h1><h3>Explore. Compare. Discover. Grow.</h3><p>A collection of interactive Bible studies with clear explanations, Bible references, and different perspectives.</p></div>
+      </div>
+      <div class="sectionTitle"><h2>★ Featured Studies</h2></div>
+      <div id="studyCards" class="studyCards"></div>
+      <div class="bottomGrid">
+        <article class="infoCard"><h2>📖 About This Library</h2><p>Each Bible study has its own index, key verses, detailed explanations, and side-by-side comparisons. More studies can be added at any time.</p></article>
+        <article class="infoCard"><h2>🔗 Quick Links</h2><button id="openFirst">Open the Rapture Study →</button><button id="futureStudies">Future Studies →</button></article>
+      </div>
+      <div class="footerQuote">💡 “Let the Bible speak, and let us compare scripture with scripture.”</div>
+    </section>
+
+    <section id="studyView" hidden>
+      <div class="breadcrumb"><button id="backLibrary">Home</button><span>›</span><span id="studyCrumb"></span></div>
+      <div class="studyHeader">
+        <div><h1 id="studyTitle"></h1><p id="studyDescription"></p></div>
+      </div>
+      <div class="sectionTitle"><h2>Study Index</h2></div>
+      <div id="topicCards" class="topicCards"></div>
+    </section>
+
+    <section id="topicView" hidden>
+      <div class="breadcrumb"><button id="crumbHome">Home</button><span>›</span><button id="crumbStudy"></button><span>›</span><span id="crumbTopic"></span></div>
+      <div class="topicTop">
+        <div class="topicNumber" id="topicNumber"></div>
+        <div class="topicTitle"><h1 id="topicTitle"></h1><p id="topicRefs"></p></div>
+        <div class="topicNav"><button id="prevBtn">← Previous</button><button id="nextBtn">Next →</button></div>
+      </div>
+
+      <div class="verseBanner"><em id="featuredVerse"></em></div>
+
+      <div class="compareGrid">
+        <article class="compareCard pre"><h2>✝️ Christian Pre-Tribulation Interpretation</h2><p id="preSummary"></p><button class="solid preSolid" data-action="preTeach">📖 Their Teachings →</button><button class="outline preOutline" data-action="preSupport">📖 Bible Support →</button></article>
+        <article class="compareCard sda"><h2>🌎 Seventh-day Adventist Interpretation</h2><p id="sdaSummary"></p><button class="solid sdaSolid" data-action="sdaTeach">📖 Their Teachings →</button><button class="outline sdaOutline" data-action="sdaSupport">📖 Bible Support →</button></article>
+        <article class="compareCard bible"><h2>📖 Bible-First Observation</h2><p id="bibleFirst"></p><button class="solid bibleSolid" id="readPassage">📖 What the Bible Says →</button><button class="outline bibleOutline" id="keyObs">⌕ Key Observations →</button></article>
+      </div>
+
+      <div class="lowerGrid">
+        <article class="takeaways"><h2>📖 Key Takeaways</h2><ul id="takeawayList"></ul></article>
+        <article class="related"><h2>🔗 Related Topics</h2><div id="relatedList"></div></article>
+      </div>
+
+      <div class="footerQuote">💡 “Let the Bible speak, and let us compare scripture with scripture.”</div>
+    </section>
+  </main>
+</div>
+
+<dialog id="dialog">
+  <button id="closeDialog" class="dialogClose">×</button>
+  <h2 id="dialogTitle"></h2>
+  <div id="dialogBody"></div>
+</dialog>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
