@@ -1,0 +1,18 @@
+V19 fixes topic rendering and hardens caching/security rules.
+- Fixed crash when opening any topic: index.html was missing the topic image,
+  notes, and extra-sections elements that renderTopicExtras() writes to. The
+  TypeError also broke Prev/Next, the sidebar index, and Related Topics.
+- Topic images now honor the editor's "Top of topic" / "After verse" position.
+- Service worker now only handles same-origin GET requests, so Firestore and
+  Auth traffic is never intercepted or cached (cache.put on POSTs was throwing).
+- firestore.rules: readers whose permission doc still contains the legacy id
+  'dead' can now open 'state-of-the-dead' (client normalized it, rules did not).
+  Redeploy the rules in the Firebase console for this to take effect.
+- Removed the redundant loadStudyContent override in app.js (merged into the
+  original function).
+- data/topics.json and data/verses.json were empty (invalid JSON); now valid
+  empty [] / {}.
+- "View All Studies" button on the home page is now wired (scrolls to the
+  featured studies grid).
+- Saved appearance settings apply on page load instead of only after sign-in.
+- Cache/assets bumped to v19.

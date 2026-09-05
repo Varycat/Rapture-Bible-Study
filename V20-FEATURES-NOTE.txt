@@ -1,0 +1,38 @@
+V20 adds floating tools, Bible versions, videos, and richer themes.
+
+1. Floating tools (bottom-right buttons, available on every page):
+   - 📝 My Notes — personal notes with a "General" scope plus a per-study scope.
+     Auto-saved to Firestore under notes/{email}; private to each user. Print button.
+   - 🔍 Search — searches studies, the open study's topics, study verses, and the
+     loaded Bible version. Results jump straight to the study/topic/verse. Print button.
+   - 📖 Bible — read any installed Bible version by book/chapter, search the whole
+     version, print the current chapter. Versions are cached on-device (IndexedDB)
+     after the first load, so re-opening is instant and works offline.
+
+2. Bible versions (Settings → 📖 Bible Versions, owner only):
+   - One-click install of public-domain versions: KJV, Bible in Basic English,
+     Reina Valera (Español), Almeida Corrigida Fiel (Português).
+   - Upload your own version as JSON (array of books with name/abbrev/chapters,
+     or {id,name,lang,books}).
+   - Stored in Firestore (bibles/{id}/books/{n}); installed once, available to all
+     readers. Remove button deletes a version for everyone.
+
+3. Topic editor additions:
+   - YouTube videos for the topic, and separate video lists for the Pre-Tribulation,
+     Adventist, and Bible-First sections (also shown in their dialogs).
+   - Font family per topic (system / modern / serif / rounded).
+   - (Pictures and notes were already supported; notes now render since v19.)
+   - AI search was intentionally left out: an API key embedded in a static site is
+     public. The floating 🔍 Search covers in-app searching without any key.
+
+4. Study editor: YouTube video list shown at the top of the study page.
+
+5. Settings themes:
+   - New colors: top bar, tab buttons, tab text, sidebar background, sidebar text.
+   - 12 presets: Classic Blue, Forest, Warm, Dark, Ocean, Sunset, Lavender, Olive,
+     Sepia, Slate, Rose, Midnight.
+
+REQUIRED: deploy the updated firestore.rules (adds /bibles and /notes rules).
+Without it, Bible install and notes saving are denied by Firestore.
+
+Cache/assets bumped to v20.

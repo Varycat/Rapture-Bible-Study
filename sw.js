@@ -1,5 +1,5 @@
 
-const C='bible-study-library-v18';
+const C='bible-study-library-v20';
 const CORE=['./','index.html','css/app.css','js/app.js','js/firebase-config.js','data/studies.json','manifest.webmanifest','icons/icon-180.png','icons/icon-192.png','icons/icon-512.png'];
 
 self.addEventListener('install',e=>{
@@ -17,6 +17,10 @@ self.addEventListener('activate',e=>{
 
 self.addEventListener('fetch',e=>{
   const u=new URL(e.request.url);
+
+  // Only handle same-origin GET requests. Firestore/auth traffic (cross-origin,
+  // often POST/streaming) must go straight to the network and is not cacheable.
+  if(e.request.method!=='GET'||u.origin!==location.origin)return;
 
   if(e.request.mode==='navigate'){
     e.respondWith(

@@ -14,7 +14,10 @@ service cloud.firestore {
     function hasPermission(studyId) {
       return signedIn()
         && exists(/databases/$(database)/documents/permissions/$(emailKey()))
-        && studyId in get(/databases/$(database)/documents/permissions/$(emailKey())).data.allowedStudies;
+        && (studyId in get(/databases/$(database)/documents/permissions/$(emailKey())).data.allowedStudies
+            // Legacy: old permission docs may still grant 'dead' for 'state-of-the-dead'.
+            || (studyId == 'state-of-the-dead'
+                && 'dead' in get(/databases/$(database)/documents/permissions/$(emailKey())).data.allowedStudies));
     }
     function canReadStudy(studyId) {
       return isOwner() || hasPermission(studyId);
@@ -34,6 +37,22 @@ service cloud.firestore {
       allow read: if signedIn() && (request.auth.token.email == email || isOwner());
       allow create, update: if signedIn() && request.auth.token.email == email;
       allow delete: if isOwner();
+    }
+
+    // Installed Bible versions: owner installs, every signed-in reader can read.
+    match /bibles/{versionId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isOwner();
+
+      match /books/{bookId} {
+        allow read: if signedIn();
+        allow create, update, delete: if isOwner();
+      }
+    }
+
+    // Personal notes: private to each user.
+    match /notes/{email} {
+      allow read, create, update, delete: if signedIn() && request.auth.token.email == email;
     }
 
     match /studies/{studyId} {

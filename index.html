@@ -4,7 +4,7 @@
 <meta name="theme-color" content="#f8fbff"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Bible Studies">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png">
-<link rel="stylesheet" href="css/app.css?v=18"><title>Bible Study Library</title>
+<link rel="stylesheet" href="css/app.css?v=20"><title>Bible Study Library</title>
 <style id="v16ButtonFix">
   .topicActions{
     grid-column:1 / -1 !important;
@@ -112,7 +112,7 @@
 <div class="heroVerse">“Thy word is a lamp unto my feet,<br>and a light unto my path.”<br><small>Psalm 119:105</small></div>
 <div class="heroBook">📖</div>
 </div>
-<div class="featureHeader"><h2>★ Featured Studies</h2><button>▦ View All Studies →</button></div>
+<div class="featureHeader"><h2>★ Featured Studies</h2><button id="viewAllBtn">▦ View All Studies →</button></div>
 <div id="featuredStudies" class="featuredStudies"></div>
 <div class="libraryBottom">
 <article><h2>📖 About This Library</h2><p>This library provides interactive Bible studies to help you explore important topics, compare interpretations, and study the Scriptures for yourself. Each study includes a complete index, key verses, detailed explanations, and side-by-side comparisons.</p></article>
@@ -124,6 +124,7 @@
 <section id="studyView" hidden>
 <div class="breadcrumb"><button id="backLibrary">Home</button><span>›</span><span id="studyCrumb"></span></div>
 <div class="studyTitleCard"><h1 id="studyTitle"></h1><p id="studyDescription"></p></div>
+<div id="studyVideos"></div>
 <div class="studyIndexTools"><h2 class="studyIndexLabel">Study Index</h2><div class="studyIndexButtons"><button id="editStudyBtn" class="ownerOnlyBtn" hidden>✎ Edit Study</button><button id="addTopicBtn" class="ownerOnlyBtn" hidden>＋ Add Topic</button><button id="completeStudyBtn">✓ Mark Study Complete</button></div></div>
 <div id="topicCards" class="topicCards"></div>
 </section>
@@ -135,6 +136,8 @@
 <div class="topicHeading"><h1 id="topicTitle"></h1><p id="topicRefs"></p></div>
 <div class="topicActions"><button id="prevBtn">← Previous</button><button id="editTopicBtn" class="ownerOnlyBtn" hidden>✎ Edit Topic</button><button id="completeTopicBtn">✓ Mark Topic Complete</button><button id="readFull" class="readPassageAction">📖 Read Full Passage</button><button id="nextBtn" class="next">Next →</button></div>
 </div>
+<div id="topicVideos"></div>
+<figure id="topicImageWrap" class="topicImageWrap" hidden><img id="topicImage" alt=""><figcaption id="topicImageCaption" class="imageCaption"></figcaption></figure>
 <div class="passageCard">
 <blockquote id="featuredVerse"></blockquote>
 </div>
@@ -143,6 +146,7 @@
 <article class="viewCard pre">
 <div class="cardTitle"><span class="iconBox purple">✝</span><h2>Christian Pre-Tribulation<br>Interpretation</h2></div>
 <p id="preSummary"></p>
+<div id="preVideos" class="cardVideos"></div>
 <button class="bigBtn red" data-action="preTeach">📖 Their Teachings <span>→</span></button>
 <button class="bigBtn redOutline" data-action="preSupport">📖 Bible Support <span>→</span></button>
 </article>
@@ -150,6 +154,7 @@
 <article class="viewCard sda">
 <div class="cardTitle"><span class="iconBox globe">🌎</span><h2>Seventh-day Adventist<br>Interpretation</h2></div>
 <p id="sdaSummary"></p>
+<div id="sdaVideos" class="cardVideos"></div>
 <button class="bigBtn blue" data-action="sdaTeach">📖 Their Teachings <span>→</span></button>
 <button class="bigBtn blueOutline" data-action="sdaSupport">📖 Bible Support <span>→</span></button>
 </article>
@@ -157,10 +162,14 @@
 <article class="viewCard bible">
 <div class="cardTitle"><span class="iconBox">📖</span><h2>Bible-First Observation</h2></div>
 <p id="bibleFirst"></p>
+<div id="bibleVideos" class="cardVideos"></div>
 <button class="bigBtn green" id="whatBible">📖 What the Bible Says <span>→</span></button>
 <button class="bigBtn greenOutline" id="keyObs">⌕ Key Observations <span>→</span></button>
 </article>
 </div>
+
+<article id="topicNotesCard" class="topicNotesCard" hidden><h2>📝 Notes</h2><p id="topicNotes"></p></article>
+<div id="extraSections" class="extraSections"></div>
 
 <div class="lower">
 <article class="takeaways"><h2>📖 Key Takeaways</h2><ul id="takeawayList"></ul></article>
@@ -189,6 +198,7 @@
       <label>Subtitle<input id="editStudySubtitle" type="text"></label>
       <label class="wide">Description<textarea id="editStudyDescription" rows="4"></textarea></label>
       <label class="wide">Owner/source note<textarea id="editStudyOwnerNote" rows="4"></textarea></label>
+      <label class="wide">YouTube videos <small>One YouTube link per line — shown at the top of this study</small><textarea id="editStudyVideos" rows="3" placeholder="https://www.youtube.com/watch?v=..."></textarea></label>
     </div>
     <div class="editorActions">
       <button id="saveStudyEdit" class="primarySettingBtn">Save Study</button>
@@ -206,22 +216,26 @@
       <label>Topic title<input id="editTopicTitle" type="text"></label>
       <label>Subtitle<input id="editTopicSubtitle" type="text"></label>
       <label class="wide">Bible references <small>Separate with commas</small><input id="editTopicVerses" type="text"></label>
+      <label class="wide">Topic YouTube videos <small>One YouTube link per line — shown at the top of this topic</small><textarea id="editTopicVideos" rows="2" placeholder="https://www.youtube.com/watch?v=..."></textarea></label>
 
       <fieldset class="wide editorFieldset">
         <legend>Pre-Tribulation / Secret Rapture Interpretation</legend>
         <label>Summary<textarea id="editPreSummary" rows="4"></textarea></label>
         <label>Teaching<textarea id="editPreTeaching" rows="6"></textarea></label>
+        <label>YouTube videos <small>One link per line — shown inside this interpretation and its dialogs</small><textarea id="editPreVideos" rows="2"></textarea></label>
       </fieldset>
 
       <fieldset class="wide editorFieldset">
         <legend>Seventh-day Adventist Interpretation</legend>
         <label>Summary<textarea id="editSdaSummary" rows="4"></textarea></label>
         <label>Teaching<textarea id="editSdaTeaching" rows="6"></textarea></label>
+        <label>YouTube videos <small>One link per line — shown inside this interpretation and its dialogs</small><textarea id="editSdaVideos" rows="2"></textarea></label>
       </fieldset>
 
       <fieldset class="wide editorFieldset">
         <legend>Bible-First Observation</legend>
         <label>Observation<textarea id="editBibleFirst" rows="7"></textarea></label>
+        <label>YouTube videos <small>One link per line — shown inside this section and its dialogs</small><textarea id="editBibleVideos" rows="2"></textarea></label>
       </fieldset>
 
       <label class="wide">Key takeaways <small>One takeaway per line</small><textarea id="editTakeaways" rows="6"></textarea></label>
@@ -243,6 +257,15 @@
 
       <fieldset class="wide editorFieldset">
         <legend>Topic Formatting</legend>
+        <label>Font family
+          <select id="editTopicFont">
+            <option value="">Use app font</option>
+            <option value="system">Apple / System</option>
+            <option value="modern">Modern Sans</option>
+            <option value="serif">Classic Serif</option>
+            <option value="rounded">Rounded</option>
+          </select>
+        </label>
         <label>Font size
           <div class="rangeRow"><input id="editTopicFontSize" type="range" min="80" max="150" step="5"><output id="editTopicFontSizeOut">100%</output></div>
         </label>
@@ -336,12 +359,25 @@
         <label>Background <input id="settingBackground" type="color"></label>
         <label>Text <input id="settingText" type="color"></label>
         <label>Cards <input id="settingCard" type="color"></label>
+        <label>Top bar <input id="settingTopbarBg" type="color"></label>
+        <label>Tab buttons <input id="settingTabBg" type="color"></label>
+        <label>Tab text <input id="settingTabText" type="color"></label>
+        <label>Sidebar <input id="settingSidebarBg" type="color"></label>
+        <label>Sidebar text <input id="settingSidebarText" type="color"></label>
       </div>
       <div class="presetRow">
         <button type="button" data-preset="blue">Classic Blue</button>
         <button type="button" data-preset="forest">Forest</button>
         <button type="button" data-preset="warm">Warm</button>
         <button type="button" data-preset="dark">Dark</button>
+        <button type="button" data-preset="ocean">Ocean</button>
+        <button type="button" data-preset="sunset">Sunset</button>
+        <button type="button" data-preset="lavender">Lavender</button>
+        <button type="button" data-preset="olive">Olive</button>
+        <button type="button" data-preset="sepia">Sepia</button>
+        <button type="button" data-preset="slate">Slate</button>
+        <button type="button" data-preset="rose">Rose</button>
+        <button type="button" data-preset="midnight">Midnight</button>
       </div>
     </section>
 
@@ -351,6 +387,23 @@
       <label class="switchRow"><input id="settingQuotes" type="checkbox"> Show Scripture quote areas</label>
       <label class="switchRow"><input id="settingAnimations" type="checkbox"> Use subtle animations</label>
       <p class="smallHelp">These appearance choices are saved on the current device. Each reader may have their own appearance preferences.</p>
+    </section>
+
+    <section class="settingsSection adminSection" id="bibleAdminSection" hidden>
+      <div class="adminTitleRow">
+        <div>
+          <h3>📖 Bible Versions</h3>
+          <p>Install Bible versions into Firestore. Every reader can then open them from the floating 📖 Bible panel.</p>
+        </div>
+        <span class="adminBadge">OWNER ONLY</span>
+      </div>
+      <div id="bibleCatalogList" class="readerAccessList"></div>
+      <div class="seedImportBox">
+        <b>Upload a Bible version file</b>
+        <p>JSON format: an array of books, each <code>{"name","abbrev","chapters":[["verse text",...],...]}</code> — or an object <code>{"id","name","lang","books":[...]}</code>.</p>
+        <input id="bibleUpload" type="file" accept=".json,application/json">
+      </div>
+      <div id="bibleStatus" class="smallHelp"></div>
     </section>
 
     <section class="settingsSection adminSection" id="ownerAccessSection" hidden>
@@ -396,6 +449,42 @@
 
 <dialog id="dialog"><button id="closeDialog">×</button><h2 id="dialogTitle"></h2><div id="dialogBody"></div></dialog>
 
+<div id="toolsFab" class="toolsFab">
+  <button id="fabNotes" title="My Notes">📝</button>
+  <button id="fabSearch" title="Search">🔍</button>
+  <button id="fabBible" title="Bible">📖</button>
+</div>
+
+<section id="notesPanel" class="floatPanel" hidden>
+  <header><h3>📝 My Notes</h3><div><button id="printNotes" title="Print notes">🖨</button><button class="panelClose" data-close-panel="notesPanel">×</button></div></header>
+  <div class="panelBody">
+    <label class="panelSelectRow">Notes for <select id="notesScope"></select></label>
+    <textarea id="notesText" placeholder="Write your personal notes here. They save automatically to your account."></textarea>
+    <div id="notesStatus" class="panelStatus" aria-live="polite"></div>
+  </div>
+</section>
+
+<section id="searchPanel" class="floatPanel" hidden>
+  <header><h3>🔍 Search</h3><div><button id="printSearch" title="Print results">🖨</button><button class="panelClose" data-close-panel="searchPanel">×</button></div></header>
+  <div class="panelBody">
+    <input id="globalSearch" type="search" placeholder="Search studies, topics, verses, Bible...">
+    <div id="searchResults" class="searchResults"></div>
+  </div>
+</section>
+
+<section id="biblePanel" class="floatPanel" hidden>
+  <header><h3>📖 Bible</h3><div><button id="printBible" title="Print chapter">🖨</button><button class="panelClose" data-close-panel="biblePanel">×</button></div></header>
+  <div class="panelBody">
+    <div class="bibleBar">
+      <select id="bibleVersionSel"></select>
+      <select id="bibleBookSel"></select>
+      <select id="bibleChapterSel"></select>
+    </div>
+    <input id="bibleSearch" type="search" placeholder="Search this Bible version...">
+    <div id="bibleContent" class="bibleContent"></div>
+  </div>
+</section>
+
 <script>
 (async function(){
   try{
@@ -414,5 +503,5 @@
 })();
 </script>
 
-<script type="module" src="js/app.js?v=18"></script>
+<script type="module" src="js/app.js?v=20"></script>
 </body></html>
