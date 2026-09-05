@@ -1,3 +1,2 @@
-# Rapture Bible Study v2
-
-Upload index.html, manifest.webmanifest, sw.js, and all three PNG icons to the ROOT of the GitHub repository. GitHub Pages should use main / (root).
+# Rapture Bible Study v3
+Upload all files and folders to the ROOT of your GitHub repository, preserving css/, js/, data/, and icons/. GitHub Pages: main / (root).

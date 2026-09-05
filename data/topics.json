@@ -1,0 +1,179 @@
+[
+  {
+    "id": "intro",
+    "title": "Introduction \u2014 What Is the Rapture?",
+    "summary": "Start with the core biblical event before comparing interpretations.",
+    "verses": [
+      "1 Thessalonians 4:16-17",
+      "1 Corinthians 15:51-53"
+    ],
+    "pretrib": {
+      "short": "Pre-tribulation Christians affirm a literal catching away of the church before the final Tribulation.",
+      "teaching": "The rapture is understood as a distinct event in which Christ comes for His church before the Tribulation.",
+      "support": [
+        {
+          "ref": "1 Thessalonians 4:16-17",
+          "why": "\u201cCaught up\u201d is read as the church being removed to meet Christ."
+        },
+        {
+          "ref": "John 14:1-3",
+          "why": "Jesus\u2019 promise to receive believers is connected with the rapture."
+        }
+      ]
+    },
+    "adventist": {
+      "short": "Adventists affirm the catching up but identify it with Christ\u2019s one visible Second Coming.",
+      "teaching": "The resurrection, transformation, and catching up occur when Jesus returns visibly and gloriously.",
+      "support": [
+        {
+          "ref": "1 Thessalonians 4:16-17",
+          "why": "Shout, archangel, trumpet, resurrection, and gathering occur together."
+        },
+        {
+          "ref": "Revelation 1:7",
+          "why": "Christ\u2019s return is visible to every eye."
+        }
+      ]
+    },
+    "bibleFirst": "The catching up is explicit. The timing and whether it is separate from the visible Second Coming are interpretive questions."
+  },
+  {
+    "id": "secret",
+    "title": "Is the Rapture Secret?",
+    "summary": "Does Scripture describe the event as invisible or silent?",
+    "verses": [
+      "1 Thessalonians 4:16-17",
+      "Revelation 1:7"
+    ],
+    "pretrib": {
+      "short": "Pre-trib believers emphasize a sudden, unexpected removal of the church before the Tribulation.",
+      "teaching": "\u201cSecret rapture\u201d usually emphasizes surprise and sudden disappearance, though not every teacher claims the event is literally silent.",
+      "support": [
+        {
+          "ref": "1 Thessalonians 5:2",
+          "why": "The day comes like a thief in the night."
+        },
+        {
+          "ref": "Matthew 24:36-42",
+          "why": "The unknown hour and one-taken/one-left language are used to support sudden removal."
+        }
+      ]
+    },
+    "adventist": {
+      "short": "Adventists reject a secret Second Coming and emphasize that Christ\u2019s return is public, audible, and visible.",
+      "teaching": "The shout, archangel\u2019s voice, trumpet, resurrection, and every-eye language are understood as a public event.",
+      "support": [
+        {
+          "ref": "1 Thessalonians 4:16-17",
+          "why": "The passage includes conspicuous sounds and resurrection."
+        },
+        {
+          "ref": "Revelation 1:7",
+          "why": "Every eye sees Christ."
+        }
+      ]
+    },
+    "bibleFirst": "Suddenness is explicit. Invisibility is not stated in 1 Thessalonians 4."
+  },
+  {
+    "id": "tribulation",
+    "title": "Does the Church Escape the Great Tribulation?",
+    "summary": "Removal before the crisis versus preservation through it.",
+    "verses": [
+      "Revelation 3:10",
+      "1 Thessalonians 5:9",
+      "Matthew 24:29-31"
+    ],
+    "pretrib": {
+      "short": "The church is removed before the Tribulation because believers are not appointed to wrath.",
+      "teaching": "The final Tribulation is viewed as a distinct period of divine judgment from which the church is removed beforehand.",
+      "support": [
+        {
+          "ref": "Revelation 3:10",
+          "why": "\u201cKeep thee from the hour\u201d is interpreted as removal from the coming worldwide test."
+        },
+        {
+          "ref": "1 Thessalonians 5:9",
+          "why": "Believers are not appointed to wrath."
+        }
+      ]
+    },
+    "adventist": {
+      "short": "God\u2019s people pass through the final crisis but are protected and delivered.",
+      "teaching": "Adventists distinguish tribulation from divine wrath and understand God as preserving His people through the crisis.",
+      "support": [
+        {
+          "ref": "Matthew 24:29-31",
+          "why": "The elect are gathered after the tribulation."
+        },
+        {
+          "ref": "Daniel 12:1",
+          "why": "God\u2019s people are present in the time of trouble and are delivered."
+        }
+      ]
+    },
+    "bibleFirst": "Deliverance from wrath is explicit. Removal before tribulation is an interpretation."
+  },
+  {
+    "id": "taken-left",
+    "title": "One Taken, One Left",
+    "summary": "How should Matthew 24:40\u201341 be understood?",
+    "verses": [
+      "Matthew 24:36-42"
+    ],
+    "pretrib": {
+      "short": "The one taken is often understood as a believer removed in the rapture.",
+      "teaching": "The sudden separation is read as believers being taken while unbelievers remain.",
+      "support": [
+        {
+          "ref": "Matthew 24:40-41",
+          "why": "One is taken and the other left."
+        }
+      ]
+    },
+    "adventist": {
+      "short": "The Noah context is emphasized: the flood took the wicked away while Noah remained.",
+      "teaching": "The immediate context makes it unsafe to assume that being taken automatically means raptured to heaven.",
+      "support": [
+        {
+          "ref": "Matthew 24:39",
+          "why": "The flood took the wicked away."
+        }
+      ]
+    },
+    "bibleFirst": "The main point is readiness because the hour is unknown."
+  },
+  {
+    "id": "matthew24",
+    "title": "Matthew 24 \u2014 The Gathering of the Elect",
+    "summary": "Tribulation, appearing, trumpet, and gathering.",
+    "verses": [
+      "Matthew 24:29-31"
+    ],
+    "pretrib": {
+      "short": "This gathering is usually distinguished from the earlier rapture of the church.",
+      "teaching": "Many pre-trib interpreters understand this as Christ\u2019s visible post-Tribulation return, not the church\u2019s earlier rapture.",
+      "support": [
+        {
+          "ref": "Matthew 24:31",
+          "why": "The gathered elect are understood as a different group/event from the church rapture."
+        }
+      ]
+    },
+    "adventist": {
+      "short": "This is understood as the same final gathering described by Paul.",
+      "teaching": "Christ appears visibly, a trumpet sounds, and His people are gathered.",
+      "support": [
+        {
+          "ref": "Matthew 24:29-31",
+          "why": "The sequence places the gathering after tribulation."
+        },
+        {
+          "ref": "1 Thessalonians 4:16-17",
+          "why": "Trumpet and gathering parallel Matthew 24."
+        }
+      ]
+    },
+    "bibleFirst": "The stated sequence is tribulation \u2192 visible Son of Man \u2192 trumpet \u2192 gathering."
+  }
+]
