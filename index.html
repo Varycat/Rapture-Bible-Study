@@ -60,7 +60,7 @@
 <section id="studyView" hidden>
 <div class="breadcrumb"><button id="backLibrary">Home</button><span>›</span><span id="studyCrumb"></span></div>
 <div class="studyTitleCard"><h1 id="studyTitle"></h1><p id="studyDescription"></p></div>
-<div class="studyIndexTools"><h2 class="studyIndexLabel">Study Index</h2><button id="completeStudyBtn">✓ Mark Study Complete</button></div>
+<div class="studyIndexTools"><h2 class="studyIndexLabel">Study Index</h2><div class="studyIndexButtons"><button id="editStudyBtn" class="ownerOnlyBtn" hidden>✎ Edit Study</button><button id="addTopicBtn" class="ownerOnlyBtn" hidden>＋ Add Topic</button><button id="completeStudyBtn">✓ Mark Study Complete</button></div></div>
 <div id="topicCards" class="topicCards"></div>
 </section>
 
@@ -69,7 +69,7 @@
 <div class="topicHeader">
 <div class="topicNumber" id="topicNumber">3</div>
 <div class="topicHeading"><h1 id="topicTitle"></h1><p id="topicRefs"></p></div>
-<div class="topicActions"><button id="prevBtn">← Previous</button><button id="completeTopicBtn">✓ Mark Topic Complete</button><button id="nextBtn" class="next">Next →</button></div>
+<div class="topicActions"><button id="prevBtn">← Previous</button><button id="editTopicBtn" class="ownerOnlyBtn" hidden>✎ Edit Topic</button><button id="completeTopicBtn">✓ Mark Topic Complete</button><button id="nextBtn" class="next">Next →</button></div>
 </div>
 <div class="passageCard">
 <button id="readFull">📖 Read Full Passage</button>
@@ -108,6 +108,101 @@
 </main>
 </div>
 
+
+
+<dialog id="editorDialog" class="editorDialog">
+  <div class="editorHead">
+    <div>
+      <div class="settingsEyebrow">OWNER STUDY EDITOR</div>
+      <h2 id="editorTitle">Edit Study</h2>
+      <p>Change study content, notes, images and formatting. Changes save securely to Firestore.</p>
+    </div>
+    <button id="closeEditor" class="settingsClose" aria-label="Close editor">×</button>
+  </div>
+
+  <div id="studyEditorPanel" class="editorBody" hidden>
+    <div class="editorGrid">
+      <label>Study title<input id="editStudyTitle" type="text"></label>
+      <label>Subtitle<input id="editStudySubtitle" type="text"></label>
+      <label class="wide">Description<textarea id="editStudyDescription" rows="4"></textarea></label>
+      <label class="wide">Owner/source note<textarea id="editStudyOwnerNote" rows="4"></textarea></label>
+    </div>
+    <div class="editorActions">
+      <button id="saveStudyEdit" class="primarySettingBtn">Save Study</button>
+    </div>
+  </div>
+
+  <div id="topicEditorPanel" class="editorBody" hidden>
+    <div class="editorToolbar">
+      <button id="moveTopicUp">↑ Move Up</button>
+      <button id="moveTopicDown">↓ Move Down</button>
+      <button id="deleteTopicBtn" class="dangerBtn">Delete Topic</button>
+    </div>
+
+    <div class="editorGrid">
+      <label>Topic title<input id="editTopicTitle" type="text"></label>
+      <label>Subtitle<input id="editTopicSubtitle" type="text"></label>
+      <label class="wide">Bible references <small>Separate with commas</small><input id="editTopicVerses" type="text"></label>
+
+      <fieldset class="wide editorFieldset">
+        <legend>Pre-Tribulation / Secret Rapture Interpretation</legend>
+        <label>Summary<textarea id="editPreSummary" rows="4"></textarea></label>
+        <label>Teaching<textarea id="editPreTeaching" rows="6"></textarea></label>
+      </fieldset>
+
+      <fieldset class="wide editorFieldset">
+        <legend>Seventh-day Adventist Interpretation</legend>
+        <label>Summary<textarea id="editSdaSummary" rows="4"></textarea></label>
+        <label>Teaching<textarea id="editSdaTeaching" rows="6"></textarea></label>
+      </fieldset>
+
+      <fieldset class="wide editorFieldset">
+        <legend>Bible-First Observation</legend>
+        <label>Observation<textarea id="editBibleFirst" rows="7"></textarea></label>
+      </fieldset>
+
+      <label class="wide">Key takeaways <small>One takeaway per line</small><textarea id="editTakeaways" rows="6"></textarea></label>
+      <label class="wide">My notes<textarea id="editNotes" rows="7" placeholder="Add your own study notes here..."></textarea></label>
+
+      <fieldset class="wide editorFieldset">
+        <legend>Image</legend>
+        <label>Image URL<input id="editImageUrl" type="url" placeholder="https://..."></label>
+        <label>Or choose an image from this device<input id="editImageFile" type="file" accept="image/*"></label>
+        <label>Caption<input id="editImageCaption" type="text"></label>
+        <label>Position
+          <select id="editImagePosition">
+            <option value="top">Top of topic</option>
+            <option value="afterVerse">After verse</option>
+          </select>
+        </label>
+        <div class="smallHelp">Device uploads are resized/compressed before being stored. Use modest images so the Firestore document stays small.</div>
+      </fieldset>
+
+      <fieldset class="wide editorFieldset">
+        <legend>Topic Formatting</legend>
+        <label>Font size
+          <div class="rangeRow"><input id="editTopicFontSize" type="range" min="80" max="150" step="5"><output id="editTopicFontSizeOut">100%</output></div>
+        </label>
+        <div class="colorGrid">
+          <label>Text <input id="editTopicTextColor" type="color"></label>
+          <label>Background <input id="editTopicBackground" type="color"></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="wide editorFieldset">
+        <legend>Additional Section</legend>
+        <label>Section title<input id="editExtraTitle" type="text" placeholder="Historical Background"></label>
+        <label>Section content<textarea id="editExtraContent" rows="6"></textarea></label>
+        <button id="addExtraSectionBtn" type="button">＋ Add Section</button>
+        <div id="extraSectionEditorList" class="extraSectionEditorList"></div>
+      </fieldset>
+    </div>
+
+    <div class="editorActions">
+      <button id="saveTopicEdit" class="primarySettingBtn">Save Topic</button>
+    </div>
+  </div>
+</dialog>
 
 <dialog id="settingsDialog" class="settingsDialog">
   <div class="settingsHead">

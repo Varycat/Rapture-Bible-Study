@@ -150,13 +150,14 @@ function renderTopicIndex(q=''){
   $('#sideNav').innerHTML=m.map((t,i)=>`<button data-topic="${t.id}">${topics.indexOf(t)+1}. ${t.title}<small>${t.subtitle||''}</small></button>`).join('');
   $('#topicCards').innerHTML=m.map(t=>`<button data-topic="${t.id}"><h3>${topics.indexOf(t)+1}. ${t.title}</h3><p>${t.subtitle||''}</p></button>`).join('');
   $$('[data-topic]').forEach(b=>b.onclick=()=>openTopic(b.dataset.topic));
-  const c=$('#completeStudyBtn'); if(c)c.hidden=false; refreshProgressUI();
+  const c=$('#completeStudyBtn'); if(c)c.hidden=false; updateOwnerButtons(); refreshProgressUI();
 }
 function openTopic(id){currentTopic=topics.findIndex(t=>t.id===id);if(currentTopic>=0)showTopic()}
 function renderTopic(){
   const t=topics[currentTopic];$('#topicNumber').textContent=currentTopic+1;$('#topicTitle').textContent=t.title;$('#topicRefs').textContent=(t.verses||[]).join('   |   ');$('#crumbTopic').textContent=t.title;
   $('#preSummary').textContent=t.pretrib?.summary||'';$('#sdaSummary').textContent=t.adventist?.summary||'';$('#bibleFirst').textContent=t.bible_first||'';
   $('#featuredVerse').textContent='“'+(verses[(t.verses||[])[0]]||'')+'”';$('#takeawayList').innerHTML=(t.takeaways||[]).map(x=>`<li>${x}</li>`).join('');
+  renderTopicExtras(t);updateOwnerButtons();
   $('#relatedList').innerHTML=topics.filter((_,i)=>i!==currentTopic).slice(0,4).map(r=>`<button data-related="${r.id}">${r.title} ›</button>`).join('');
   $$('[data-related]').forEach(b=>b.onclick=()=>openTopic(b.dataset.related));
   $('#sideNav').innerHTML=topics.map((x,i)=>`<button class="${i===currentTopic?'active':''}" data-topic="${x.id}">${i+1}. ${x.title}<small>${x.subtitle||''}</small></button>`).join('');
@@ -232,6 +233,190 @@ function applyPreset(name){
   applySettings(readSettings());
 }
 
+
+let editorExtraSections=[];
+
+function updateOwnerButtons(){
+  $$('.ownerOnlyBtn').forEach(b=>b.hidden=!owner);
+}
+
+function openStudyEditor(){
+  if(!owner||!currentStudy)return;
+  $('#editorTitle').textContent='Edit Study';
+  $('#studyEditorPanel').hidden=false;
+  $('#topicEditorPanel').hidden=true;
+  $('#editStudyTitle').value=currentStudy.title||'';
+  $('#editStudySubtitle').value=currentStudy.subtitle||'';
+  $('#editStudyDescription').value=currentStudy.description||'';
+  $('#editStudyOwnerNote').value=currentStudy.editorNote||'';
+  $('#editorDialog').showModal();
+}
+
+async function saveStudyEditor(){
+  if(!owner||!currentStudy)return;
+  const patch={
+    title:$('#editStudyTitle').value.trim(),
+    subtitle:$('#editStudySubtitle').value.trim(),
+    description:$('#editStudyDescription').value.trim(),
+    editorNote:$('#editStudyOwnerNote').value.trim(),
+    updatedAt:new Date().toISOString()
+  };
+  await setDoc(doc(db,'studies',currentStudy.id),patch,{merge:true});
+  Object.assign(currentStudy,patch);
+  const cat=studies.find(s=>s.id===currentStudy.id); if(cat)Object.assign(cat,patch);
+  $('#studyTitle').textContent=currentStudy.title;
+  $('#studyDescription').textContent=currentStudy.description;
+  $('#editorDialog').close();
+  renderLibrary(); renderSidebar();
+}
+
+function openTopicEditor(){
+  if(!owner||!currentStudy||!topics[currentTopic])return;
+  const t=topics[currentTopic];
+  $('#editorTitle').textContent='Edit Topic';
+  $('#studyEditorPanel').hidden=true;
+  $('#topicEditorPanel').hidden=false;
+
+  $('#editTopicTitle').value=t.title||'';
+  $('#editTopicSubtitle').value=t.subtitle||'';
+  $('#editTopicVerses').value=(t.verses||[]).join(', ');
+  $('#editPreSummary').value=t.pretrib?.summary||'';
+  $('#editPreTeaching').value=t.pretrib?.teaching||'';
+  $('#editSdaSummary').value=t.adventist?.summary||'';
+  $('#editSdaTeaching').value=t.adventist?.teaching||'';
+  $('#editBibleFirst').value=t.bible_first||'';
+  $('#editTakeaways').value=(t.takeaways||[]).join('\n');
+  $('#editNotes').value=t.notes||'';
+  $('#editImageUrl').value=t.image?.src?.startsWith('data:')?'':(t.image?.src||'');
+  $('#editImageFile').value='';
+  $('#editImageCaption').value=t.image?.caption||'';
+  $('#editImagePosition').value=t.image?.position||'top';
+  $('#editTopicFontSize').value=t.style?.fontSize||100;
+  $('#editTopicFontSizeOut').value=(t.style?.fontSize||100)+'%';
+  $('#editTopicTextColor').value=t.style?.textColor||'#08245b';
+  $('#editTopicBackground').value=t.style?.background||'#ffffff';
+  editorExtraSections=JSON.parse(JSON.stringify(t.extraSections||[]));
+  renderExtraSectionEditor();
+  $('#editorDialog').showModal();
+}
+
+function renderExtraSectionEditor(){
+  $('#extraSectionEditorList').innerHTML=editorExtraSections.map((s,i)=>`
+    <div class="extraEditorItem">
+      <div><b>${s.title||'Untitled Section'}</b><small>${(s.content||'').slice(0,120)}</small></div>
+      <button type="button" data-extra-remove="${i}">Remove</button>
+    </div>`).join('');
+  $$('[data-extra-remove]').forEach(b=>b.onclick=()=>{editorExtraSections.splice(+b.dataset.extraRemove,1);renderExtraSectionEditor()});
+}
+
+function addExtraSection(){
+  const title=$('#editExtraTitle').value.trim(), content=$('#editExtraContent').value.trim();
+  if(!title&&!content)return;
+  editorExtraSections.push({title:title||'Additional Notes',content});
+  $('#editExtraTitle').value='';$('#editExtraContent').value='';renderExtraSectionEditor();
+}
+
+async function fileToCompressedDataURL(file){
+  if(!file)return '';
+  const bitmap=await createImageBitmap(file);
+  const max=1000, scale=Math.min(1,max/Math.max(bitmap.width,bitmap.height));
+  const canvas=document.createElement('canvas');
+  canvas.width=Math.max(1,Math.round(bitmap.width*scale));
+  canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+  const ctx=canvas.getContext('2d');ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
+  let quality=.78, data=canvas.toDataURL('image/jpeg',quality);
+  while(data.length>260000 && quality>.35){quality-=.1;data=canvas.toDataURL('image/jpeg',quality)}
+  if(data.length>350000)throw new Error('Image is still too large. Please choose a smaller image.');
+  return data;
+}
+
+async function saveTopicEditor(){
+  if(!owner||!currentStudy||!topics[currentTopic])return;
+  const t=topics[currentTopic];
+  let imgSrc=t.image?.src||'';
+  const file=$('#editImageFile').files[0];
+  if(file) imgSrc=await fileToCompressedDataURL(file);
+  else if($('#editImageUrl').value.trim()) imgSrc=$('#editImageUrl').value.trim();
+
+  const patch={
+    title:$('#editTopicTitle').value.trim(),
+    subtitle:$('#editTopicSubtitle').value.trim(),
+    verses:$('#editTopicVerses').value.split(',').map(x=>x.trim()).filter(Boolean),
+    pretrib:{...(t.pretrib||{}),summary:$('#editPreSummary').value.trim(),teaching:$('#editPreTeaching').value.trim()},
+    adventist:{...(t.adventist||{}),summary:$('#editSdaSummary').value.trim(),teaching:$('#editSdaTeaching').value.trim()},
+    bible_first:$('#editBibleFirst').value.trim(),
+    takeaways:$('#editTakeaways').value.split('\n').map(x=>x.trim()).filter(Boolean),
+    notes:$('#editNotes').value.trim(),
+    image:{src:imgSrc,caption:$('#editImageCaption').value.trim(),position:$('#editImagePosition').value},
+    style:{fontSize:+$('#editTopicFontSize').value,textColor:$('#editTopicTextColor').value,background:$('#editTopicBackground').value},
+    extraSections:editorExtraSections,
+    updatedAt:new Date().toISOString()
+  };
+  await setDoc(doc(db,'studies',currentStudy.id,'topics',t.id),patch,{merge:true});
+  Object.assign(t,patch);
+  $('#editorDialog').close();
+  renderTopic(); renderTopicIndex();
+}
+
+async function addNewTopic(){
+  if(!owner||!currentStudy)return;
+  const id='topic-'+Date.now();
+  const order=(topics.reduce((m,t)=>Math.max(m,t.order||0),0)||0)+1;
+  const t={
+    id,order,title:'New Topic',subtitle:'Click Edit Topic to add content',verses:[],
+    pretrib:{summary:'',teaching:'',support:[]},
+    adventist:{summary:'',teaching:'',support:[]},
+    bible_first:'',takeaways:[],notes:'',
+    image:{src:'',caption:'',position:'top'},
+    style:{fontSize:100,textColor:'#08245b',background:'#ffffff'},
+    extraSections:[]
+  };
+  await setDoc(doc(db,'studies',currentStudy.id,'topics',id),t);
+  topics.push(t);topics.sort((a,b)=>(a.order||999)-(b.order||999));
+  currentTopic=topics.findIndex(x=>x.id===id);showTopic();openTopicEditor();
+}
+
+async function moveTopic(delta){
+  if(!owner||!topics[currentTopic])return;
+  const ni=currentTopic+delta;if(ni<0||ni>=topics.length)return;
+  const a=topics[currentTopic],b=topics[ni];
+  const ao=a.order||currentTopic+1,bo=b.order||ni+1;
+  a.order=bo;b.order=ao;
+  const batch=writeBatch(db);
+  batch.set(doc(db,'studies',currentStudy.id,'topics',a.id),{order:a.order},{merge:true});
+  batch.set(doc(db,'studies',currentStudy.id,'topics',b.id),{order:b.order},{merge:true});
+  await batch.commit();
+  topics.sort((x,y)=>(x.order||999)-(y.order||999));
+  currentTopic=topics.findIndex(x=>x.id===a.id);
+  openTopicEditor();
+}
+
+async function deleteCurrentTopic(){
+  if(!owner||!topics[currentTopic])return;
+  if(!confirm('Delete this topic permanently?'))return;
+  const t=topics[currentTopic];
+  await deleteDoc(doc(db,'studies',currentStudy.id,'topics',t.id));
+  topics.splice(currentTopic,1);
+  currentTopic=Math.max(0,Math.min(currentTopic,topics.length-1));
+  $('#editorDialog').close();
+  if(topics.length)showTopic(); else showStudy();
+}
+
+function renderTopicExtras(t){
+  const wrap=$('#topicImageWrap'),img=$('#topicImage'),cap=$('#topicImageCaption');
+  if(t.image?.src){wrap.hidden=false;img.src=t.image.src;cap.textContent=t.image.caption||''}
+  else{wrap.hidden=true;img.removeAttribute('src');cap.textContent=''}
+  $('#topicNotesCard').hidden=!t.notes;
+  $('#topicNotes').textContent=t.notes||'';
+  $('#extraSections').innerHTML=(t.extraSections||[]).map(s=>`<article class="extraSectionCard"><h3>${s.title||'Additional Section'}</h3><p>${(s.content||'').replace(/\n/g,'<br>')}</p></article>`).join('');
+  const topicRoot=$('#topicView');
+  if(topicRoot){
+    topicRoot.style.setProperty('--topic-font-scale',String((t.style?.fontSize||100)/100));
+    topicRoot.style.setProperty('--topic-text-color',t.style?.textColor||'#08245b');
+    topicRoot.style.setProperty('--topic-background',t.style?.background||'#ffffff');
+  }
+}
+
 function bind(){
   $('#loginForm').addEventListener('submit',async e=>{e.preventDefault();$('#loginMessage').textContent='Signing in…';try{await signInWithEmailAndPassword(auth,$('#loginEmail').value.trim(),$('#loginPassword').value);$('#loginMessage').textContent=''}catch{$('#loginMessage').textContent='Sign in failed. Check the email and password.'}});
   $('#signOutBtn').onclick=()=>signOut(auth);$('#menuBtn').onclick=()=>$('#sidebar').classList.add('open');$('#closeSide').onclick=closeSide;
@@ -248,11 +433,24 @@ function bind(){
   $('#saveSettings').onclick=()=>{const s=readSettings();localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));applySettings(s);$('#settingsDialog').close()};$('#resetSettings').onclick=()=>{localStorage.setItem(SETTINGS_KEY,JSON.stringify(defaults));applySettings(defaults);fillSettings()};
   $('#saveReaderAccess').onclick=saveReader;const imp=$('#seedImport');if(imp)imp.onchange=e=>importSeedFile(e.target.files[0]);
   $('#completeTopicBtn').onclick=()=>markTopicComplete(topics[currentTopic].id);$('#completeStudyBtn').onclick=markStudyComplete;
+
+  $('#editStudyBtn').onclick=openStudyEditor;
+  $('#addTopicBtn').onclick=addNewTopic;
+  $('#editTopicBtn').onclick=openTopicEditor;
+  $('#closeEditor').onclick=()=>$('#editorDialog').close();
+  $('#saveStudyEdit').onclick=saveStudyEditor;
+  $('#saveTopicEdit').onclick=()=>saveTopicEditor().catch(e=>openDialog('Could Not Save',`<p>${e.message}</p>`));
+  $('#addExtraSectionBtn').onclick=addExtraSection;
+  $('#editTopicFontSize').oninput=e=>$('#editTopicFontSizeOut').value=e.target.value+'%';
+  $('#moveTopicUp').onclick=()=>moveTopic(-1);
+  $('#moveTopicDown').onclick=()=>moveTopic(1);
+  $('#deleteTopicBtn').onclick=deleteCurrentTopic;
+
 }
 
 onAuthStateChanged(auth,async u=>{
   user=u; if(!u){$('#authGate').hidden=false;return}
-  $('#authGate').hidden=true; owner=await isOwner(); studies=await loadStudyCatalog();allowedStudies=await loadPermissions();applySettings(settings());renderOwnerPanel();showLibrary();
+  $('#authGate').hidden=true; owner=await isOwner(); updateOwnerButtons(); studies=await loadStudyCatalog();allowedStudies=await loadPermissions();applySettings(settings());renderOwnerPanel();showLibrary();
 });
 
 bind();

@@ -181,3 +181,26 @@ body.card-rounded{--app-radius:18px}
   .settingsGrid{grid-template-columns:1fr;padding:12px}.adminSection{grid-column:auto}.studyAccessList{grid-template-columns:1fr}
   .settingsFooter{justify-content:stretch}.settingsFooter button{flex:1}.settingsHead{padding:15px}
 }
+
+/* ---------- v13 Owner Study Editor ---------- */
+.ownerOnlyBtn{border:1px solid #aac7e8;background:#f3f8ff;color:#145fa7;border-radius:10px;padding:9px 12px;font-weight:850}
+.studyIndexButtons{display:flex;flex-wrap:wrap;gap:8px}
+.editorDialog{width:min(1100px,calc(100vw - 24px));max-height:93vh;padding:0;border:0;border-radius:20px;background:var(--app-card,#fff);color:var(--app-text,#08245b);box-shadow:0 30px 90px rgba(0,20,60,.3)}
+.editorDialog::backdrop{background:rgba(4,18,38,.74);backdrop-filter:blur(3px)}
+.editorHead{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;gap:18px;padding:20px 22px;border-bottom:1px solid var(--line,#dce6f2);background:var(--app-card,#fff)}
+.editorHead h2{margin:3px 0 5px;font-size:30px}.editorHead p{margin:0;color:var(--muted,#60718b)}
+.editorBody{padding:18px;overflow:auto}.editorGrid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.editorGrid>.wide,.editorGrid>fieldset.wide{grid-column:1/-1}
+.editorGrid label{display:grid;gap:6px;font-weight:800}.editorGrid input,.editorGrid textarea,.editorGrid select{width:100%;border:1px solid var(--line,#dce6f2);border-radius:10px;padding:10px;background:var(--app-card,#fff);color:var(--app-text,#08245b);font:inherit}
+.editorGrid textarea{resize:vertical;line-height:1.5}.editorFieldset{border:1px solid var(--line,#dce6f2);border-radius:12px;padding:14px;display:grid;gap:12px}.editorFieldset legend{font-weight:900;padding:0 7px}
+.editorActions{position:sticky;bottom:0;display:flex;justify-content:flex-end;padding:14px 0 0;background:var(--app-card,#fff)}
+.editorToolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}.editorToolbar button,.extraSectionEditorList button,#addExtraSectionBtn{border:1px solid var(--line,#dce6f2);background:var(--app-card,#fff);color:var(--app-text,#08245b);border-radius:9px;padding:8px 10px;font-weight:800}
+.dangerBtn{border-color:#e4aaa2!important;background:#fff3f1!important;color:#a33326!important}
+.extraSectionEditorList{display:grid;gap:7px;margin-top:10px}.extraEditorItem{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border:1px solid var(--line,#dce6f2);border-radius:9px;padding:9px}
+.extraEditorItem small{display:block;color:var(--muted,#60718b);margin-top:3px}
+.topicImageWrap{margin:12px 0 18px;text-align:center}.topicImageWrap img{max-width:100%;max-height:460px;object-fit:contain;border-radius:14px;box-shadow:0 8px 30px rgba(0,30,70,.13)}
+.imageCaption{font-size:13px;color:var(--muted,#60718b);margin-top:7px}
+.topicNotesCard,.extraSectionCard{margin-top:14px;border:1px solid var(--line,#dce6f2);border-radius:14px;padding:16px;background:var(--topic-background,#fff);color:var(--topic-text-color,#08245b)}
+.extraSections{display:grid;gap:12px;margin-top:14px}
+#topicView{font-size:calc(1em * var(--topic-font-scale,1));color:var(--topic-text-color,var(--app-text,#08245b))}
+#topicView .viewCard,#topicView .passageCard,#topicView .takeaways,#topicView .related{background:var(--topic-background,#fff)}
+@media(max-width:760px){.editorGrid{grid-template-columns:1fr}.editorGrid>.wide,.editorGrid>fieldset.wide{grid-column:auto}.studyIndexButtons{width:100%}.studyIndexButtons button{flex:1}}
