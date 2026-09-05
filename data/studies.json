@@ -3,8 +3,72 @@
     "id": "rapture",
     "title": "The Rapture of the Church",
     "subtitle": "Second Coming and End Times",
-    "description": "A Bible-first comparison of the Christian pre-tribulation interpretation and the Seventh-day Adventist interpretation.",
+    "description": "A Bible-first study comparing the pre-tribulation rapture interpretation with the Seventh-day Adventist perspective.",
     "icon": "\u2601\ufe0f",
-    "status": "available"
+    "available": true
+  },
+  {
+    "id": "sabbath",
+    "title": "The Sabbath",
+    "subtitle": "God's Holy Day",
+    "description": "What does the Bible say about the Sabbath?",
+    "icon": "\ud83d\uddd3\ufe0f",
+    "available": false
+  },
+  {
+    "id": "dead",
+    "title": "The State of the Dead",
+    "subtitle": "What happens after death?",
+    "description": "A Bible study on death, resurrection, and life after death.",
+    "icon": "\u25c9",
+    "available": false
+  },
+  {
+    "id": "sanctuary",
+    "title": "The Sanctuary",
+    "subtitle": "Heavenly Sanctuary",
+    "description": "The sanctuary and Christ's ministry.",
+    "icon": "\ud83c\udfdb\ufe0f",
+    "available": false
+  },
+  {
+    "id": "daniel",
+    "title": "Prophecy in Daniel",
+    "subtitle": "Kingdoms and the End Time",
+    "description": "Daniel's prophecies and the end time.",
+    "icon": "\u265e",
+    "available": false
+  },
+  {
+    "id": "revelation",
+    "title": "The Book of Revelation",
+    "subtitle": "Symbols and Final Events",
+    "description": "Revelation's symbols and final events.",
+    "icon": "\u25b0",
+    "available": false
+  },
+  {
+    "id": "salvation",
+    "title": "Faith and Salvation",
+    "subtitle": "How to be saved?",
+    "description": "A Bible study on grace, faith, and salvation.",
+    "icon": "\u271a",
+    "available": false
+  },
+  {
+    "id": "law",
+    "title": "God's Law",
+    "subtitle": "The Ten Commandments",
+    "description": "The role of God's law.",
+    "icon": "\u25a5",
+    "available": false
+  },
+  {
+    "id": "jesus",
+    "title": "Jesus Christ",
+    "subtitle": "His Life, Mission and Return",
+    "description": "A study of Jesus Christ.",
+    "icon": "\u265b",
+    "available": false
   }
 ]
