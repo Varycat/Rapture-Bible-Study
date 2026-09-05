@@ -21,3 +21,10 @@ Do not upload the private seed to GitHub.
 Source framing:
 The first viewpoint is labeled Pre-Tribulation / Secret Rapture Interpretation rather than claiming all or most Christian denominations hold it.
 Official Adventist references are stored in the study metadata.
+
+
+## v14
+- Fixed the Read Full Passage control so it no longer overlays Previous / Complete / Next.
+- Added The State of the Dead to the study catalog.
+- Import `state-of-the-dead-firestore-seed-v14.json` from Owner Settings to add the complete study to Firestore.
+- Keep all private seed files off GitHub.
