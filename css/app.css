@@ -311,3 +311,30 @@ body.card-rounded{--app-radius:18px}
     min-width:0 !important;
   }
 }
+
+/* ---------- v16 authoritative button fix ---------- */
+.topicActions{
+  grid-column:1/-1!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  position:relative!important;
+  gap:10px!important;
+  width:100%!important;
+}
+.topicActions>button,
+.topicActions>#readFull{
+  position:relative!important;
+  inset:auto!important;
+  transform:none!important;
+  margin:0!important;
+  z-index:1!important;
+  float:none!important;
+}
+#readFull{
+  position:relative!important;
+  inset:auto!important;
+  transform:none!important;
+  margin:0!important;
+  z-index:1!important;
+}
+.passageCard>#readFull{display:none!important}
