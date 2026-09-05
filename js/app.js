@@ -18,6 +18,8 @@ const SETTINGS_KEY='bible-study-v11-settings';
 const defaults={title:'Bible Study Library',subtitle:'INTERACTIVE BIBLE STUDIES',heroTitle:'Bible Study Library',heroTagline:'Explore. Compare. Discover. Grow.',footer:'Let the Bible speak, and let us compare scripture with scripture.',font:'system',fontSize:100,primary:'#0c73e6',background:'#f7fafe',text:'#08245b',card:'#ffffff',density:'comfortable',cardStyle:'rounded',sidebar:true,quotes:true,animations:true};
 
 function ekey(email){return String(email||'').trim().toLowerCase()}
+function normalizeStudyId(id){ return id==='dead' ? 'state-of-the-dead' : id; }
+function normalizeStudyIds(ids){ return [...new Set((ids||[]).map(normalizeStudyId))]; }
 function settings(){try{return {...defaults,...JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}')}}catch{return {...defaults}}}
 function applySettings(s){
   const r=document.documentElement.style;
@@ -183,7 +185,7 @@ async function renderOwnerPanel(){
   $('#readerStudyChecks').innerHTML=studies.map(s=>`<label class="accessItem"><span><b>${s.title}</b><small>${s.subtitle||''}</small></span><input type="checkbox" data-reader-study="${s.id}"></label>`).join('');
   const perm=await getDocs(collection(db,'permissions')); const progress=await getDocs(collection(db,'progress')); const pm={};progress.docs.forEach(d=>pm[d.id]=d.data());
   $('#readerAccessList').innerHTML=perm.empty?'<p>No readers yet.</p>':perm.docs.map(d=>{
-    const a=d.data().allowedStudies||[], p=pm[d.id]||{}, done=p.completedStudies||[];
+    const a=normalizeStudyIds(d.data().allowedStudies||[]), p=pm[d.id]||{}, done=normalizeStudyIds(p.completedStudies||[]);
     return `<div class="readerAccessItem"><div><b>${d.id}</b><small>Access: ${a.length?a.join(', '):'None'}<br>Completed: ${done.length?done.join(', '):'None'}</small></div><div><button data-edit-reader="${d.id}">Edit</button><button data-remove-reader="${d.id}">Remove</button></div></div>`;
   }).join('');
   $$('[data-edit-reader]').forEach(b=>b.onclick=async()=>loadReaderForEdit(b.dataset.editReader));
@@ -421,39 +423,123 @@ function renderTopicExtras(t){
 }
 
 function bind(){
-  $('#loginForm').addEventListener('submit',async e=>{e.preventDefault();$('#loginMessage').textContent='Signing in…';try{await signInWithEmailAndPassword(auth,$('#loginEmail').value.trim(),$('#loginPassword').value);$('#loginMessage').textContent=''}catch{$('#loginMessage').textContent='Sign in failed. Check the email and password.'}});
-  $('#signOutBtn').onclick=()=>signOut(auth);$('#menuBtn').onclick=()=>$('#sidebar').classList.add('open');$('#closeSide').onclick=closeSide;
-  $('#homeBtn').onclick=$('#backLibrary').onclick=$('#crumbHome').onclick=showLibrary;$('#crumbStudy').onclick=showStudy;
-  $('#search').oninput=e=>currentStudy?renderTopicIndex(e.target.value):renderSidebar(e.target.value);
-  $$('[data-action]').forEach(b=>b.onclick=()=>detail(b.dataset.action));$('#prevBtn').onclick=()=>{if(currentTopic>0){currentTopic--;showTopic()}};$('#nextBtn').onclick=()=>{if(currentTopic<topics.length-1){currentTopic++;showTopic()}};
-  $('#readFull').onclick=$('#whatBible').onclick=()=>{const t=topics[currentTopic];openDialog('Read Full Passage',(t.verses||[]).map(r=>`<div class="supportItem"><button data-ref="${r}">📖 ${r}</button><p>${verses[r]||''}</p></div>`).join(''))};
-  $('#keyObs').onclick=()=>openDialog('Key Observations',`<p>${topics[currentTopic]?.bible_first||''}</p>`);$('#closeDialog').onclick=()=>$('#dialog').close();
-  $('#aboutBtn').onclick=()=>openDialog('About This Library','<p>This is a private progressive Bible Study Library. The owner decides which study each reader can access.</p>');
-  $('#settingsBtn').onclick=()=>{fillSettings();renderOwnerPanel();$('#settingsDialog').showModal()};$('#closeSettings').onclick=()=>$('#settingsDialog').close();
-  $('#settingFontSize').oninput=e=>{$('#fontSizeOutput').value=e.target.value+'%';applySettings(readSettings())};
-  ['settingTitle','settingSubtitle','settingHeroTitle','settingHeroTagline','settingFooter','settingFont','settingPrimary','settingBackground','settingText','settingCard','settingDensity','settingCardStyle','settingSidebar','settingQuotes','settingAnimations'].forEach(id=>{const el=$('#'+id);if(el)el.addEventListener('input',()=>applySettings(readSettings()))});
-  $$('[data-preset]').forEach(b=>b.onclick=()=>applyPreset(b.dataset.preset));
-  $('#saveSettings').onclick=()=>{const s=readSettings();localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));applySettings(s);$('#settingsDialog').close()};$('#resetSettings').onclick=()=>{localStorage.setItem(SETTINGS_KEY,JSON.stringify(defaults));applySettings(defaults);fillSettings()};
-  $('#saveReaderAccess').onclick=saveReader;const imp=$('#seedImport');if(imp)imp.onchange=e=>importSeedFile(e.target.files[0]);
-  $('#completeTopicBtn').onclick=()=>markTopicComplete(topics[currentTopic].id);$('#completeStudyBtn').onclick=markStudyComplete;
+  const on=(sel,event,fn)=>{
+    const el=$(sel);
+    if(el) el.addEventListener(event,fn);
+  };
 
-  $('#editStudyBtn').onclick=openStudyEditor;
-  $('#addTopicBtn').onclick=addNewTopic;
-  $('#editTopicBtn').onclick=openTopicEditor;
-  $('#closeEditor').onclick=()=>$('#editorDialog').close();
-  $('#saveStudyEdit').onclick=saveStudyEditor;
-  $('#saveTopicEdit').onclick=()=>saveTopicEditor().catch(e=>openDialog('Could Not Save',`<p>${e.message}</p>`));
-  $('#addExtraSectionBtn').onclick=addExtraSection;
-  $('#editTopicFontSize').oninput=e=>$('#editTopicFontSizeOut').value=e.target.value+'%';
-  $('#moveTopicUp').onclick=()=>moveTopic(-1);
-  $('#moveTopicDown').onclick=()=>moveTopic(1);
-  $('#deleteTopicBtn').onclick=deleteCurrentTopic;
+  on('#loginForm','submit',async e=>{
+    e.preventDefault();
+    const msg=$('#loginMessage'); if(msg)msg.textContent='Signing in…';
+    try{
+      await signInWithEmailAndPassword(auth,$('#loginEmail').value.trim(),$('#loginPassword').value);
+      if(msg)msg.textContent='';
+    }catch{
+      if(msg)msg.textContent='Sign in failed. Check the email and password.';
+    }
+  });
 
+  on('#signOutBtn','click',()=>signOut(auth));
+  on('#menuBtn','click',()=>$('#sidebar')?.classList.add('open'));
+  on('#closeSide','click',closeSide);
+  on('#homeBtn','click',showLibrary);
+  on('#backLibrary','click',showLibrary);
+  on('#crumbHome','click',showLibrary);
+  on('#crumbStudy','click',showStudy);
+  on('#search','input',e=>currentStudy?renderTopicIndex(e.target.value):renderSidebar(e.target.value));
+
+  $$('[data-action]').forEach(b=>b.addEventListener('click',()=>detail(b.dataset.action)));
+  on('#prevBtn','click',()=>{if(currentTopic>0){currentTopic--;showTopic()}});
+  on('#nextBtn','click',()=>{if(currentTopic<topics.length-1){currentTopic++;showTopic()}});
+
+  const readPassage=()=>{
+    const t=topics[currentTopic];
+    if(!t){openDialog('Read Full Passage','<p>Open a topic first.</p>');return}
+    openDialog('Read Full Passage',(t.verses||[]).map(r=>`<div class="supportItem"><button data-ref="${r}">📖 ${r}</button><p>${verses[r]||''}</p></div>`).join(''));
+  };
+  on('#readFull','click',readPassage);
+  on('#whatBible','click',readPassage);
+  on('#keyObs','click',()=>openDialog('Key Observations',`<p>${topics[currentTopic]?.bible_first||''}</p>`));
+  on('#closeDialog','click',()=>$('#dialog')?.close());
+
+  on('#aboutBtn','click',()=>openDialog('About This Library','<p>This is a private progressive Bible Study Library. The owner decides which study each reader can access.</p>'));
+  on('#settingsBtn','click',async()=>{
+    fillSettings();
+    await renderOwnerPanel().catch(()=>{});
+    const d=$('#settingsDialog'); if(d&&!d.open)d.showModal();
+  });
+  on('#closeSettings','click',()=>$('#settingsDialog')?.close());
+
+  on('#settingFontSize','input',e=>{
+    const o=$('#fontSizeOutput'); if(o)o.value=e.target.value+'%';
+    applySettings(readSettings());
+  });
+  ['settingTitle','settingSubtitle','settingHeroTitle','settingHeroTagline','settingFooter','settingFont','settingPrimary','settingBackground','settingText','settingCard','settingDensity','settingCardStyle','settingSidebar','settingQuotes','settingAnimations']
+    .forEach(id=>on('#'+id,'input',()=>applySettings(readSettings())));
+
+  $$('[data-preset]').forEach(b=>b.addEventListener('click',()=>applyPreset(b.dataset.preset)));
+  on('#saveSettings','click',()=>{
+    const s=readSettings();
+    localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));
+    applySettings(s);
+    $('#settingsDialog')?.close();
+  });
+  on('#resetSettings','click',()=>{
+    localStorage.setItem(SETTINGS_KEY,JSON.stringify(defaults));
+    applySettings(defaults);
+    fillSettings();
+  });
+
+  on('#saveReaderAccess','click',()=>saveReader().catch(e=>openDialog('Reader Access',`<p>${e.message}</p>`)));
+  on('#seedImport','change',e=>importSeedFile(e.target.files[0]).catch(err=>openDialog('Import Failed',`<p>${err.message}</p>`)));
+  on('#completeTopicBtn','click',()=>{if(topics[currentTopic])markTopicComplete(topics[currentTopic].id)});
+  on('#completeStudyBtn','click',markStudyComplete);
+
+  on('#editStudyBtn','click',openStudyEditor);
+  on('#addTopicBtn','click',()=>addNewTopic().catch(e=>openDialog('Could Not Add Topic',`<p>${e.message}</p>`)));
+  on('#editTopicBtn','click',openTopicEditor);
+  on('#closeEditor','click',()=>$('#editorDialog')?.close());
+  on('#saveStudyEdit','click',()=>saveStudyEditor().catch(e=>openDialog('Could Not Save',`<p>${e.message}</p>`)));
+  on('#saveTopicEdit','click',()=>saveTopicEditor().catch(e=>openDialog('Could Not Save',`<p>${e.message}</p>`)));
+  on('#addExtraSectionBtn','click',addExtraSection);
+  on('#editTopicFontSize','input',e=>{const o=$('#editTopicFontSizeOut');if(o)o.value=e.target.value+'%'});
+  on('#moveTopicUp','click',()=>moveTopic(-1));
+  on('#moveTopicDown','click',()=>moveTopic(1));
+  on('#deleteTopicBtn','click',deleteCurrentTopic);
+
+  // Home-page Quick Links
+  on('#howBtn','click',()=>openDialog('How to Use This Library','<p>Select a study, choose a topic from its Study Index, read the comparison, open the Bible passages, and mark topics complete as you progress.</p>'));
+  on('#faqBtn','click',()=>openDialog('Frequently Asked Questions','<p><b>Can readers see every study?</b> No. The owner controls access in Settings.<br><br><b>Can readers edit studies?</b> No. Editing controls are owner-only.</p>'));
+  on('#suggestBtn','click',()=>openDialog('Suggest a New Study','<p>Use the Owner Study Editor to add a new topic now. Additional complete studies can also be added as private Firestore seed files.</p>'));
+  on('#shareBtn','click',async()=>{
+    const url=location.href;
+    try{
+      if(navigator.share) await navigator.share({title:document.title,url});
+      else {await navigator.clipboard.writeText(url);openDialog('Share This Project','<p>The web app link was copied to your clipboard.</p>')}
+    }catch{}
+  });
 }
 
 onAuthStateChanged(auth,async u=>{
-  user=u; if(!u){$('#authGate').hidden=false;return}
-  $('#authGate').hidden=true; owner=await isOwner(); updateOwnerButtons(); studies=await loadStudyCatalog();allowedStudies=await loadPermissions();applySettings(settings());renderOwnerPanel();showLibrary();
+  user=u;
+  if(!u){
+    if($('#authGate'))$('#authGate').hidden=false;
+    return;
+  }
+  if($('#authGate'))$('#authGate').hidden=true;
+  try{
+    owner=await isOwner();
+    studies=await loadStudyCatalog();
+    allowedStudies=await loadPermissions();
+  }catch(e){
+    console.error('Startup data error:',e);
+    try{ studies=await loadStudyCatalog(); }catch{}
+    allowedStudies=owner?studies.map(s=>s.id):[];
+  }
+  updateOwnerButtons();
+  applySettings(settings());
+  renderOwnerPanel().catch(()=>{});
+  showLibrary();
 });
 
 bind();

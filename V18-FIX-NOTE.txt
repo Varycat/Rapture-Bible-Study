@@ -1,0 +1,6 @@
+V18 fixes all menu/button handlers.
+- Restored missing normalizeStudyId/normalizeStudyIds functions.
+- Rebuilt menu binding so one missing/failed control cannot disable all menus.
+- Hardened startup against Firestore errors.
+- Added Quick Links actions.
+- Cache/assets bumped to v18.
