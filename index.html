@@ -6,11 +6,30 @@
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="stylesheet" href="css/app.css"><title>Bible Study Library</title></head>
 <body>
+
+<div id="authGate" class="authGate">
+  <div class="authCard">
+    <div class="authBook">📖</div>
+    <h1>Bible Study Library</h1>
+    <p>This library is private. Sign in with the email and password provided by the owner.</p>
+    <form id="loginForm">
+      <label>Email
+        <input id="loginEmail" type="email" autocomplete="username" required>
+      </label>
+      <label>Password
+        <input id="loginPassword" type="password" autocomplete="current-password" required>
+      </label>
+      <div id="loginMessage" class="loginMessage" aria-live="polite"></div>
+      <button type="submit">Sign In</button>
+    </form>
+  </div>
+</div>
+
 <header class="topbar">
 <button id="menuBtn" class="mobileMenu">☰</button>
 <div class="brand"><span class="book">📖</span><div><strong id="brandTitle">Bible Study Library</strong><small>INTERACTIVE BIBLE STUDIES</small></div></div>
 <div class="scriptureHeader">“Search the Scriptures... they are they which testify of Me.”<br><small>John 5:39</small></div>
-<div class="topButtons"><button id="homeBtn" class="active">⌂<span>Home</span></button><button id="aboutBtn">●<span>About</span></button><button id="settingsBtn">⚙<span>Settings</span></button></div>
+<div class="topButtons"><button id="homeBtn" class="active">⌂<span>Home</span></button><button id="aboutBtn">●<span>About</span></button><button id="settingsBtn">⚙<span>Settings</span></button><button id="signOutBtn">⇥<span>Sign Out</span></button></div>
 </header>
 
 <div class="app">
@@ -41,7 +60,7 @@
 <section id="studyView" hidden>
 <div class="breadcrumb"><button id="backLibrary">Home</button><span>›</span><span id="studyCrumb"></span></div>
 <div class="studyTitleCard"><h1 id="studyTitle"></h1><p id="studyDescription"></p></div>
-<h2 class="studyIndexLabel">Study Index</h2>
+<div class="studyIndexTools"><h2 class="studyIndexLabel">Study Index</h2><button id="completeStudyBtn">✓ Mark Study Complete</button></div>
 <div id="topicCards" class="topicCards"></div>
 </section>
 
@@ -50,7 +69,7 @@
 <div class="topicHeader">
 <div class="topicNumber" id="topicNumber">3</div>
 <div class="topicHeading"><h1 id="topicTitle"></h1><p id="topicRefs"></p></div>
-<div class="topicActions"><button id="prevBtn">← Previous</button><button id="nextBtn" class="next">Next →</button></div>
+<div class="topicActions"><button id="prevBtn">← Previous</button><button id="completeTopicBtn">✓ Mark Topic Complete</button><button id="nextBtn" class="next">Next →</button></div>
 </div>
 <div class="passageCard">
 <button id="readFull">📖 Read Full Passage</button>

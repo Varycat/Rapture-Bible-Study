@@ -16,3 +16,115 @@ main{padding:14px 17px;max-width:1600px;width:100%;margin:auto}.crumb,.breadcrum
 dialog{width:min(760px,calc(100% - 28px));border:0;border-radius:15px;padding:20px}dialog::backdrop{background:rgba(0,18,45,.62)}#closeDialog{float:right;border:0;background:none;font-size:28px}.supportItem{background:#f5f8fc;border-radius:11px;padding:12px;margin:8px 0}.supportItem button{border:0;background:none;color:#0968c8;font-weight:800}
 @media(max-width:1100px){.app{grid-template-columns:280px 1fr}.comparison{grid-template-columns:1fr}.featuredStudies{grid-template-columns:1fr 1fr}}
 @media(max-width:760px){.topbar{height:68px;padding:7px 10px}.mobileMenu{display:block;border:0;background:#fff;font-size:24px}.brand strong{font-size:17px}.brand small,.scriptureHeader,.topButtons{display:none}.book{font-size:28px}.app{display:block}.sidebar{position:fixed;top:68px;left:0;width:min(88vw,340px);height:calc(100vh - 68px);z-index:30;transform:translateX(-105%);transition:.2s;box-shadow:18px 0 45px rgba(0,20,50,.16)}.sidebar.open{transform:translateX(0)}.sideHeader button{display:block;border:0;background:none;font-size:25px}main{padding:10px}.hero{height:auto;min-height:220px;padding:20px}.hero h1{font-size:38px}.heroBook{font-size:70px;right:20px}.heroVerse{display:none}.featuredStudies,.libraryBottom,.topicCards,.lower{grid-template-columns:1fr}.topicHeader{grid-template-columns:52px 1fr}.topicActions{grid-column:1/-1}.topicHeading h1{font-size:30px}.passageCard button{position:static;margin-bottom:8px}.comparison{grid-template-columns:1fr}.viewCard{min-height:0}}
+
+/* ---------- v9 Customization ---------- */
+:root{
+  --app-primary:#0c73e6;
+  --app-bg:#f7fafe;
+  --app-text:#08245b;
+  --app-card:#ffffff;
+  --app-font-scale:1;
+  --app-radius:15px;
+  --app-space:1;
+}
+body{
+  background:var(--app-bg) !important;
+  color:var(--app-text) !important;
+  font-size:calc(16px * var(--app-font-scale));
+}
+body.font-system{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body.font-serif{font-family:Georgia,"Times New Roman",serif}
+body.font-rounded{font-family:"Arial Rounded MT Bold","Trebuchet MS",sans-serif}
+body.font-modern{font-family:Inter,Arial,Helvetica,sans-serif}
+body.no-sidebar .app{grid-template-columns:1fr}
+body.no-sidebar .sidebar{display:none}
+body.hide-quotes .scriptureHeader,
+body.hide-quotes .sideQuote,
+body.hide-quotes .heroVerse,
+body.hide-quotes .footerQuote{display:none!important}
+body.no-animations *{transition:none!important;animation:none!important}
+body.density-compact main{padding:8px 12px}
+body.density-compact .viewCard,
+body.density-compact .studyCard,
+body.density-compact .libraryBottom article{padding:12px}
+body.density-spacious main{padding:26px}
+body.density-spacious .viewCard,
+body.density-spacious .studyCard,
+body.density-spacious .libraryBottom article{padding:24px}
+body.card-square{--app-radius:3px}
+body.card-soft{--app-radius:10px}
+body.card-rounded{--app-radius:18px}
+.viewCard,.studyCard,.libraryBottom article,.hero,.passageCard,.takeaways,.related,
+.studyTitleCard,.topicCards button,.footerQuote,.sideQuote{border-radius:var(--app-radius)!important}
+.topButtons button.active,.next,.blue,.studyCard.primary button{background:var(--app-primary)!important}
+.settingsDialog{
+  width:min(980px,calc(100% - 24px));
+  max-height:90vh;
+  border:0;
+  border-radius:20px;
+  padding:0;
+  color:var(--app-text);
+  background:var(--app-card);
+}
+.settingsDialog::backdrop{background:rgba(0,18,45,.66)}
+.settingsHead{
+  position:sticky;top:0;z-index:4;
+  display:flex;justify-content:space-between;gap:18px;
+  padding:20px 22px;background:var(--app-card);
+  border-bottom:1px solid var(--line);
+}
+.settingsHead h2{font-size:30px;margin:2px 0 4px}.settingsHead p{margin:0;color:var(--muted)}
+.settingsEyebrow{font-size:11px;font-weight:900;letter-spacing:.14em;color:var(--app-primary)}
+.settingsClose{border:0;background:transparent;font-size:30px;min-width:44px;height:44px}
+.settingsGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:18px}
+.settingsSection{border:1px solid var(--line);border-radius:14px;padding:16px;background:color-mix(in srgb,var(--app-card) 94%,var(--app-primary) 6%)}
+.settingsSection h3{margin:0 0 12px;font-size:19px}.settingsSection>label{display:grid;gap:6px;margin:11px 0;font-weight:700}
+.settingsSection input[type="text"],.settingsSection select{
+  width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;padding:9px 11px;background:var(--app-card);color:var(--app-text)
+}
+.rangeRow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}.rangeRow output{min-width:52px;text-align:right}
+.colorGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.colorGrid label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:700}
+.colorGrid input[type="color"]{width:52px;height:38px;border:1px solid var(--line);border-radius:9px;background:transparent;padding:2px}
+.presetRow{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.presetRow button,.publishActions button{
+  min-height:40px;border:1px solid var(--line);border-radius:9px;background:var(--app-card);color:var(--app-text);font-weight:800;padding:8px 10px
+}
+.switchRow{display:flex!important;grid-template-columns:auto 1fr!important;align-items:center;gap:10px!important}.switchRow input{width:20px;height:20px}
+.adminSection{grid-column:1/-1}.adminTitleRow{display:flex;justify-content:space-between;gap:12px}.adminBadge{height:max-content;border-radius:999px;background:var(--app-primary);color:#fff;padding:5px 9px;font-size:11px;font-weight:900}
+.adminNotice{padding:11px;border-radius:10px;background:#fff6df;border:1px solid #f0d88e;line-height:1.45;font-size:14px}
+.studyAccessList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.accessItem{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--app-card)}
+.accessItem b{display:block}.accessItem small{color:var(--muted)}.accessItem input{width:22px;height:22px}
+.publishActions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.smallHelp{font-size:13px;color:var(--muted);line-height:1.45}
+.settingsFooter{position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:9px;padding:14px 20px;border-top:1px solid var(--line);background:var(--app-card)}
+.primarySettingBtn,.secondarySettingBtn{min-height:44px;border-radius:10px;padding:9px 14px;font-weight:850}
+.primarySettingBtn{border:0;background:var(--app-primary);color:#fff}.secondarySettingBtn{border:1px solid var(--line);background:var(--app-card);color:var(--app-text)}
+@media(max-width:760px){
+  .settingsGrid{grid-template-columns:1fr;padding:12px}.adminSection{grid-column:auto}
+  .studyAccessList{grid-template-columns:1fr}.settingsFooter{justify-content:stretch}.settingsFooter button{flex:1}
+}
+
+/* ---------- v10 Firebase private access ---------- */
+.authGate{
+  position:fixed;inset:0;z-index:1000;
+  display:grid;place-items:center;padding:18px;
+  background:linear-gradient(135deg,#eaf3ff,#f8fbff 45%,#eef7ff);
+}
+.authGate[hidden]{display:none}
+.authCard{width:min(430px,100%);background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px;box-shadow:0 22px 60px rgba(0,35,90,.16)}
+.authBook{font-size:54px}.authCard h1{font-size:32px;margin:6px 0}.authCard p{color:var(--muted);line-height:1.5}
+.authCard label{display:grid;gap:6px;margin:12px 0;font-weight:800}
+.authCard input{min-height:46px;border:1px solid var(--line);border-radius:11px;padding:10px 12px;font-size:16px}
+.authCard button{width:100%;min-height:48px;border:0;border-radius:11px;background:var(--app-primary);color:#fff;font-weight:900;margin-top:8px}
+.loginMessage{min-height:20px;color:#b33b2e;font-size:14px}
+.readerForm{display:grid;gap:12px;margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--app-card)}
+.readerForm label{display:grid;gap:6px;font-weight:800}.readerForm input[type=email]{min-height:44px;border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+.readerAccessList{display:grid;gap:8px}.readerAccessItem{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:11px;padding:11px;background:var(--app-card)}
+.readerAccessItem small{color:var(--muted)}.readerAccessItem button{border:1px solid #e1b0a9;background:#fff6f4;color:#a8392a;border-radius:9px;padding:7px 9px;font-weight:800}
+.secureNotice{background:#edf9f0;border-color:#b9dfc1}
+
+.studyIndexTools{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.studyIndexTools button,#completeTopicBtn{min-height:42px;border:1px solid #9bc7a4;background:#f1fbf3;color:#27743a;border-radius:10px;padding:9px 12px;font-weight:850}
+.seedImportBox{margin-top:13px;padding:13px;border:1px dashed var(--line);border-radius:11px;background:var(--app-card)}
+.seedImportBox p{font-size:13px;color:var(--muted);line-height:1.4}.seedImportBox input{width:100%;margin-top:6px}
+.readerAccessItem>div:last-child{display:flex;gap:6px}.readerAccessItem button[data-edit-reader]{border-color:#abcceb;background:#f3f8ff;color:#1762a7}
+@media(max-width:760px){.studyIndexTools{align-items:stretch;flex-direction:column}.topicActions{flex-wrap:wrap}}

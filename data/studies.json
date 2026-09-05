@@ -5,7 +5,9 @@
     "subtitle": "Second Coming and End Times",
     "description": "A Bible-first study comparing the pre-tribulation rapture interpretation with the Seventh-day Adventist perspective.",
     "icon": "\u2601\ufe0f",
-    "available": true
+    "available": true,
+    "published": true,
+    "release_order": 1
   },
   {
     "id": "sabbath",
@@ -13,7 +15,9 @@
     "subtitle": "God's Holy Day",
     "description": "What does the Bible say about the Sabbath?",
     "icon": "\ud83d\uddd3\ufe0f",
-    "available": false
+    "available": false,
+    "published": false,
+    "release_order": 999
   },
   {
     "id": "dead",
@@ -21,7 +25,9 @@
     "subtitle": "What happens after death?",
     "description": "A Bible study on death, resurrection, and life after death.",
     "icon": "\u25c9",
-    "available": false
+    "available": false,
+    "published": false,
+    "release_order": 999
   },
   {
     "id": "sanctuary",
@@ -29,7 +35,9 @@
     "subtitle": "Heavenly Sanctuary",
     "description": "The sanctuary and Christ's ministry.",
     "icon": "\ud83c\udfdb\ufe0f",
-    "available": false
+    "available": false,
+    "published": false,
+    "release_order": 999
   },
   {
     "id": "daniel",
@@ -37,7 +45,9 @@
     "subtitle": "Kingdoms and the End Time",
     "description": "Daniel's prophecies and the end time.",
     "icon": "\u265e",
-    "available": false
+    "available": false,
+    "published": false,
+    "release_order": 999
   },
   {
     "id": "revelation",
@@ -45,7 +55,9 @@
     "subtitle": "Symbols and Final Events",
     "description": "Revelation's symbols and final events.",
     "icon": "\u25b0",
-    "available": false
+    "available": false,
+    "published": false,
+    "release_order": 999
   },
   {
     "id": "salvation",
@@ -53,7 +65,9 @@
     "subtitle": "How to be saved?",
     "description": "A Bible study on grace, faith, and salvation.",
     "icon": "\u271a",
-    "available": false
+    "available": false,
+    "published": false,
+    "release_order": 999
   },
   {
     "id": "law",
@@ -61,7 +75,9 @@
     "subtitle": "The Ten Commandments",
     "description": "The role of God's law.",
     "icon": "\u25a5",
-    "available": false
+    "available": false,
+    "published": false,
+    "release_order": 999
   },
   {
     "id": "jesus",
@@ -69,6 +85,8 @@
     "subtitle": "His Life, Mission and Return",
     "description": "A study of Jesus Christ.",
     "icon": "\u265b",
-    "available": false
+    "available": false,
+    "published": false,
+    "release_order": 999
   }
 ]
