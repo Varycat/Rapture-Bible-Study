@@ -44,7 +44,7 @@
 <section id="libraryView">
 <div class="crumb">Home</div>
 <div class="hero">
-<div class="heroCopy"><h1>Bible Study Library</h1><h3>Explore. Compare. Discover. Grow.</h3><p>A collection of interactive Bible studies with clear explanations,<br>Bible references, and different perspectives.</p></div>
+<div class="heroCopy"><h1 id="heroTitle">Bible Study Library</h1><h3 id="heroTagline">Explore. Compare. Discover. Grow.</h3><p>A collection of interactive Bible studies with clear explanations,<br>Bible references, and different perspectives.</p></div>
 <div class="heroVerse">“Thy word is a lamp unto my feet,<br>and a light unto my path.”<br><small>Psalm 119:105</small></div>
 <div class="heroBook">📖</div>
 </div>
@@ -54,7 +54,7 @@
 <article><h2>📖 About This Library</h2><p>This library provides interactive Bible studies to help you explore important topics, compare interpretations, and study the Scriptures for yourself. Each study includes a complete index, key verses, detailed explanations, and side-by-side comparisons.</p></article>
 <article><h2>🔗 Quick Links</h2><button id="howBtn">How to Use This Library ›</button><button id="faqBtn">Frequently Asked Questions ›</button><button id="suggestBtn">Suggest a New Study ›</button><button id="shareBtn">Share This Project ›</button></article>
 </div>
-<div class="footerQuote">💡 “Let the Bible speak, and let us compare scripture with scripture.”</div>
+<div class="footerQuote">💡 “<span class="footerMessage">Let the Bible speak, and let us compare scripture with scripture.</span>”</div>
 </section>
 
 <section id="studyView" hidden>
@@ -103,10 +103,138 @@
 <article class="takeaways"><h2>📖 Key Takeaways</h2><ul id="takeawayList"></ul></article>
 <article class="related"><h2>🔗 Related Topics</h2><div id="relatedList"></div></article>
 </div>
-<div class="footerQuote">💡 “Let the Bible speak, and let us compare scripture with scripture.”</div>
+<div class="footerQuote">💡 “<span class="footerMessage">Let the Bible speak, and let us compare scripture with scripture.</span>”</div>
 </section>
 </main>
 </div>
+
+
+<dialog id="settingsDialog" class="settingsDialog">
+  <div class="settingsHead">
+    <div>
+      <div class="settingsEyebrow">CUSTOMIZE YOUR LIBRARY</div>
+      <h2>Settings</h2>
+      <p>Change the appearance of the app. Owner controls for reader access are below.</p>
+    </div>
+    <button id="closeSettings" class="settingsClose" aria-label="Close settings">×</button>
+  </div>
+
+  <div class="settingsGrid">
+    <section class="settingsSection">
+      <h3>📝 Titles & Text</h3>
+      <label>App title
+        <input id="settingTitle" type="text" maxlength="60" placeholder="Bible Study Library">
+      </label>
+      <label>Subtitle
+        <input id="settingSubtitle" type="text" maxlength="80" placeholder="INTERACTIVE BIBLE STUDIES">
+      </label>
+      <label>Home hero title
+        <input id="settingHeroTitle" type="text" maxlength="80" placeholder="Bible Study Library">
+      </label>
+      <label>Home hero tagline
+        <input id="settingHeroTagline" type="text" maxlength="100" placeholder="Explore. Compare. Discover. Grow.">
+      </label>
+      <label>Footer message
+        <input id="settingFooter" type="text" maxlength="140" placeholder="Let the Bible speak...">
+      </label>
+    </section>
+
+    <section class="settingsSection">
+      <h3>🔤 Font & Size</h3>
+      <label>Font family
+        <select id="settingFont">
+          <option value="system">Apple / System</option>
+          <option value="modern">Modern Sans</option>
+          <option value="serif">Classic Serif</option>
+          <option value="rounded">Rounded</option>
+        </select>
+      </label>
+      <label>Font size
+        <div class="rangeRow">
+          <input id="settingFontSize" type="range" min="80" max="150" step="5" value="100">
+          <output id="fontSizeOutput">100%</output>
+        </div>
+      </label>
+      <label>Content spacing
+        <select id="settingDensity">
+          <option value="compact">Compact</option>
+          <option value="comfortable">Comfortable</option>
+          <option value="spacious">Spacious</option>
+        </select>
+      </label>
+      <label>Card shape
+        <select id="settingCardStyle">
+          <option value="square">Square</option>
+          <option value="soft">Soft corners</option>
+          <option value="rounded">Rounded</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="settingsSection">
+      <h3>🎨 Colors</h3>
+      <div class="colorGrid">
+        <label>Primary <input id="settingPrimary" type="color"></label>
+        <label>Background <input id="settingBackground" type="color"></label>
+        <label>Text <input id="settingText" type="color"></label>
+        <label>Cards <input id="settingCard" type="color"></label>
+      </div>
+      <div class="presetRow">
+        <button type="button" data-preset="blue">Classic Blue</button>
+        <button type="button" data-preset="forest">Forest</button>
+        <button type="button" data-preset="warm">Warm</button>
+        <button type="button" data-preset="dark">Dark</button>
+      </div>
+    </section>
+
+    <section class="settingsSection">
+      <h3>🖼 Layout & Display</h3>
+      <label class="switchRow"><input id="settingSidebar" type="checkbox"> Show sidebar on large screens</label>
+      <label class="switchRow"><input id="settingQuotes" type="checkbox"> Show Scripture quote areas</label>
+      <label class="switchRow"><input id="settingAnimations" type="checkbox"> Use subtle animations</label>
+      <p class="smallHelp">These appearance choices are saved on the current device. Each reader may have their own appearance preferences.</p>
+    </section>
+
+    <section class="settingsSection adminSection" id="ownerAccessSection" hidden>
+      <div class="adminTitleRow">
+        <div>
+          <h3>🔐 Reader Access & Progress</h3>
+          <p>You decide which study each person can see. Unlock the next one when they finish.</p>
+        </div>
+        <span class="adminBadge">OWNER ONLY</span>
+      </div>
+
+      <div class="adminNotice secureNotice">
+        Study content is protected by Firebase. Readers cannot unlock another study themselves.
+      </div>
+
+      <div class="seedImportBox">
+        <b>Private Study Import</b>
+        <p>Use this only as the owner to upload a private study seed into Firestore. Never upload the private seed file to GitHub.</p>
+        <input id="seedImport" type="file" accept=".json,application/json">
+      </div>
+
+      <div class="readerForm">
+        <label>Reader email
+          <input id="readerEmail" type="email" placeholder="reader@example.com">
+        </label>
+        <div>
+          <b>Studies this person can see</b>
+          <div id="readerStudyChecks" class="studyAccessList"></div>
+        </div>
+        <button type="button" id="saveReaderAccess" class="primarySettingBtn">Save Reader Access</button>
+      </div>
+
+      <h4>Readers and progress</h4>
+      <div id="readerAccessList" class="readerAccessList"></div>
+    </section>
+  </div>
+
+  <div class="settingsFooter">
+    <button type="button" id="resetSettings" class="secondarySettingBtn">Reset Appearance</button>
+    <button type="button" id="saveSettings" class="primarySettingBtn">Save Settings</button>
+  </div>
+</dialog>
 
 <dialog id="dialog"><button id="closeDialog">×</button><h2 id="dialogTitle"></h2><div id="dialogBody"></div></dialog>
 <script type="module" src="js/app.js"></script>

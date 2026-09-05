@@ -15,23 +15,68 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 let user=null, owner=false, studies=[], allowedStudies=[], currentStudy=null, topics=[], verses={}, currentTopic=0;
 
 const SETTINGS_KEY='bible-study-v11-settings';
-const defaults={title:'Bible Study Library',subtitle:'INTERACTIVE BIBLE STUDIES',font:'system',fontSize:100,primary:'#0c73e6',background:'#f7fafe',text:'#08245b',card:'#ffffff',density:'comfortable',cardStyle:'rounded',sidebar:true,quotes:true,animations:true};
+const defaults={title:'Bible Study Library',subtitle:'INTERACTIVE BIBLE STUDIES',heroTitle:'Bible Study Library',heroTagline:'Explore. Compare. Discover. Grow.',footer:'Let the Bible speak, and let us compare scripture with scripture.',font:'system',fontSize:100,primary:'#0c73e6',background:'#f7fafe',text:'#08245b',card:'#ffffff',density:'comfortable',cardStyle:'rounded',sidebar:true,quotes:true,animations:true};
 
 function ekey(email){return String(email||'').trim().toLowerCase()}
 function settings(){try{return {...defaults,...JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}')}}catch{return {...defaults}}}
 function applySettings(s){
   const r=document.documentElement.style;
-  r.setProperty('--app-primary',s.primary);r.setProperty('--app-bg',s.background);r.setProperty('--app-text',s.text);r.setProperty('--app-card',s.card);r.setProperty('--app-font-scale',String(s.fontSize/100));
-  document.body.className=`font-${s.font} density-${s.density} card-${s.cardStyle}`+(s.sidebar?'':' no-sidebar')+(s.quotes?'':' hide-quotes')+(s.animations?'':' no-animations');
-  $('#brandTitle').textContent=s.title; const sub=document.querySelector('.brand small'); if(sub)sub.textContent=s.subtitle; document.title=s.title;
+  r.setProperty('--app-primary',s.primary);
+  r.setProperty('--app-bg',s.background);
+  r.setProperty('--app-text',s.text);
+  r.setProperty('--app-card',s.card);
+  r.setProperty('--app-font-scale',String(s.fontSize/100));
+
+  document.body.className=`font-${s.font} density-${s.density} card-${s.cardStyle}`+
+    (s.sidebar?'':' no-sidebar')+
+    (s.quotes?'':' hide-quotes')+
+    (s.animations?'':' no-animations');
+
+  $('#brandTitle').textContent=s.title;
+  const sub=document.querySelector('.brand small'); if(sub)sub.textContent=s.subtitle;
+  const heroTitle=$('#heroTitle'); if(heroTitle)heroTitle.textContent=s.heroTitle||s.title;
+  const heroTagline=$('#heroTagline'); if(heroTagline)heroTagline.textContent=s.heroTagline;
+  $$('.footerMessage').forEach(x=>x.textContent=s.footer);
+  document.title=s.title;
 }
 function fillSettings(){
   const s=settings();
-  $('#settingTitle').value=s.title;$('#settingSubtitle').value=s.subtitle;$('#settingFont').value=s.font;$('#settingFontSize').value=s.fontSize;$('#fontSizeOutput').value=s.fontSize+'%';
-  $('#settingPrimary').value=s.primary;$('#settingBackground').value=s.background;$('#settingText').value=s.text;$('#settingCard').value=s.card;$('#settingDensity').value=s.density;$('#settingCardStyle').value=s.cardStyle;
-  $('#settingSidebar').checked=s.sidebar;$('#settingQuotes').checked=s.quotes;$('#settingAnimations').checked=s.animations;
+  $('#settingTitle').value=s.title;
+  $('#settingSubtitle').value=s.subtitle;
+  $('#settingHeroTitle').value=s.heroTitle||s.title;
+  $('#settingHeroTagline').value=s.heroTagline;
+  $('#settingFooter').value=s.footer;
+  $('#settingFont').value=s.font;
+  $('#settingFontSize').value=s.fontSize;
+  $('#fontSizeOutput').value=s.fontSize+'%';
+  $('#settingPrimary').value=s.primary;
+  $('#settingBackground').value=s.background;
+  $('#settingText').value=s.text;
+  $('#settingCard').value=s.card;
+  $('#settingDensity').value=s.density;
+  $('#settingCardStyle').value=s.cardStyle;
+  $('#settingSidebar').checked=s.sidebar;
+  $('#settingQuotes').checked=s.quotes;
+  $('#settingAnimations').checked=s.animations;
 }
-function readSettings(){return {title:$('#settingTitle').value.trim()||defaults.title,subtitle:$('#settingSubtitle').value.trim()||defaults.subtitle,font:$('#settingFont').value,fontSize:+$('#settingFontSize').value,primary:$('#settingPrimary').value,background:$('#settingBackground').value,text:$('#settingText').value,card:$('#settingCard').value,density:$('#settingDensity').value,cardStyle:$('#settingCardStyle').value,sidebar:$('#settingSidebar').checked,quotes:$('#settingQuotes').checked,animations:$('#settingAnimations').checked}}
+function readSettings(){return {
+  title:$('#settingTitle').value.trim()||defaults.title,
+  subtitle:$('#settingSubtitle').value.trim()||defaults.subtitle,
+  heroTitle:$('#settingHeroTitle').value.trim()||defaults.heroTitle,
+  heroTagline:$('#settingHeroTagline').value.trim()||defaults.heroTagline,
+  footer:$('#settingFooter').value.trim()||defaults.footer,
+  font:$('#settingFont').value,
+  fontSize:+$('#settingFontSize').value,
+  primary:$('#settingPrimary').value,
+  background:$('#settingBackground').value,
+  text:$('#settingText').value,
+  card:$('#settingCard').value,
+  density:$('#settingDensity').value,
+  cardStyle:$('#settingCardStyle').value,
+  sidebar:$('#settingSidebar').checked,
+  quotes:$('#settingQuotes').checked,
+  animations:$('#settingAnimations').checked
+}}
 
 async function isOwner(){
   if(!user)return false;
@@ -43,9 +88,7 @@ async function loadPermissions(){
   return snap.exists()?(snap.data().allowedStudies||[]):[];
 }
 async function loadStudyCatalog(){
-  // First try Firestore study metadata; fallback to public metadata catalog.
-  const fs=await getDocs(collection(db,'studies'));
-  if(!fs.empty) return fs.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||999)-(b.order||999));
+  // Public file contains titles/metadata only. Actual study content remains protected in Firestore.
   return await (await fetch('data/studies.json',{cache:'no-store'})).json();
 }
 async function loadStudyContent(id){
@@ -163,7 +206,7 @@ async function importSeedFile(file){
   await batch.commit();
   // Verse doc IDs are encoded, loadStudyContent uses data ref in doc values below:
   openDialog('Import Complete',`<p>${data.study.title} was uploaded to Firestore.</p>`);
-  studies=await loadStudyCatalog();allowedStudies=await loadPermissions();renderLibrary();renderOwnerPanel();
+  studies=await loadStudyCatalog();allowedStudies=await loadPermissions();renderLibrary();await renderOwnerPanel();
 }
 // Override loadStudyContent verse loading to use stored ref.
 const _loadStudyContent=loadStudyContent;
@@ -172,6 +215,22 @@ loadStudyContent=async function(id){
   const tSnap=await getDocs(collection(db,'studies',id,'topics'));topics=tSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||999)-(b.order||999));
   const vSnap=await getDocs(collection(db,'studies',id,'verses'));verses={};vSnap.docs.forEach(d=>{const x=d.data();verses[x.ref||decodeURIComponent(d.id)]=x.text||''});
 };
+
+
+function applyPreset(name){
+  const presets={
+    blue:{primary:'#0c73e6',background:'#f7fafe',text:'#08245b',card:'#ffffff'},
+    forest:{primary:'#2f7d4a',background:'#f4faf5',text:'#173d28',card:'#ffffff'},
+    warm:{primary:'#b86232',background:'#fff9f2',text:'#4b2b1c',card:'#ffffff'},
+    dark:{primary:'#66aaff',background:'#0d1624',text:'#edf5ff',card:'#172336'}
+  };
+  const p=presets[name]; if(!p)return;
+  $('#settingPrimary').value=p.primary;
+  $('#settingBackground').value=p.background;
+  $('#settingText').value=p.text;
+  $('#settingCard').value=p.card;
+  applySettings(readSettings());
+}
 
 function bind(){
   $('#loginForm').addEventListener('submit',async e=>{e.preventDefault();$('#loginMessage').textContent='Signing in…';try{await signInWithEmailAndPassword(auth,$('#loginEmail').value.trim(),$('#loginPassword').value);$('#loginMessage').textContent=''}catch{$('#loginMessage').textContent='Sign in failed. Check the email and password.'}});
@@ -184,7 +243,8 @@ function bind(){
   $('#aboutBtn').onclick=()=>openDialog('About This Library','<p>This is a private progressive Bible Study Library. The owner decides which study each reader can access.</p>');
   $('#settingsBtn').onclick=()=>{fillSettings();renderOwnerPanel();$('#settingsDialog').showModal()};$('#closeSettings').onclick=()=>$('#settingsDialog').close();
   $('#settingFontSize').oninput=e=>{$('#fontSizeOutput').value=e.target.value+'%';applySettings(readSettings())};
-  ['settingTitle','settingSubtitle','settingFont','settingPrimary','settingBackground','settingText','settingCard','settingDensity','settingCardStyle','settingSidebar','settingQuotes','settingAnimations'].forEach(id=>{const el=$('#'+id);if(el)el.addEventListener('input',()=>applySettings(readSettings()))});
+  ['settingTitle','settingSubtitle','settingHeroTitle','settingHeroTagline','settingFooter','settingFont','settingPrimary','settingBackground','settingText','settingCard','settingDensity','settingCardStyle','settingSidebar','settingQuotes','settingAnimations'].forEach(id=>{const el=$('#'+id);if(el)el.addEventListener('input',()=>applySettings(readSettings()))});
+  $$('[data-preset]').forEach(b=>b.onclick=()=>applyPreset(b.dataset.preset));
   $('#saveSettings').onclick=()=>{const s=readSettings();localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));applySettings(s);$('#settingsDialog').close()};$('#resetSettings').onclick=()=>{localStorage.setItem(SETTINGS_KEY,JSON.stringify(defaults));applySettings(defaults);fillSettings()};
   $('#saveReaderAccess').onclick=saveReader;const imp=$('#seedImport');if(imp)imp.onchange=e=>importSeedFile(e.target.files[0]);
   $('#completeTopicBtn').onclick=()=>markTopicComplete(topics[currentTopic].id);$('#completeStudyBtn').onclick=markStudyComplete;
