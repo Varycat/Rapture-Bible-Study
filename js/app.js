@@ -85,13 +85,14 @@ async function isOwner(){
 async function loadPermissions(){
   if(owner)return studies.map(s=>s.id);
   const snap=await getDoc(doc(db,'permissions',ekey(user.email)));
-  return snap.exists()?(snap.data().allowedStudies||[]):[];
+  return snap.exists()?normalizeStudyIds(snap.data().allowedStudies||[]):[];
 }
 async function loadStudyCatalog(){
   // Public file contains titles/metadata only. Actual study content remains protected in Firestore.
   return await (await fetch('data/studies.json',{cache:'no-store'})).json();
 }
 async function loadStudyContent(id){
+  id=normalizeStudyId(id);
   const studySnap=await getDoc(doc(db,'studies',id)); if(!studySnap.exists()) throw new Error('Study content not found in Firestore.');
   const tSnap=await getDocs(collection(db,'studies',id,'topics'));
   topics=tSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||999)-(b.order||999));
@@ -138,6 +139,7 @@ function renderSidebar(q=''){
   $$('#sideNav [data-study]').forEach(b=>b.onclick=()=>openStudy(b.dataset.study));
 }
 async function openStudy(id){
+  id=normalizeStudyId(id);
   if(!owner&&!allowedStudies.includes(id))return;
   currentStudy=studies.find(s=>s.id===id); if(!currentStudy)return;
   try{await loadStudyContent(id)}catch(e){openDialog('Study Not Ready',`<p>${e.message}</p>`);return}
@@ -188,12 +190,12 @@ async function renderOwnerPanel(){
   $$('[data-remove-reader]').forEach(b=>b.onclick=async()=>{await deleteDoc(doc(db,'permissions',b.dataset.removeReader));await renderOwnerPanel()});
 }
 async function loadReaderForEdit(email){
-  $('#readerEmail').value=email; const snap=await getDoc(doc(db,'permissions',email)); const allowed=snap.exists()?(snap.data().allowedStudies||[]):[];
+  $('#readerEmail').value=email; const snap=await getDoc(doc(db,'permissions',email)); const allowed=snap.exists()?normalizeStudyIds(snap.data().allowedStudies||[]):[];
   $$('[data-reader-study]').forEach(c=>c.checked=allowed.includes(c.dataset.readerStudy));
 }
 async function saveReader(){
   if(!owner)return;const email=ekey($('#readerEmail').value);if(!email){openDialog('Reader Access','<p>Enter the reader email.</p>');return}
-  const allowed=$$('[data-reader-study]:checked').map(c=>c.dataset.readerStudy);
+  const allowed=normalizeStudyIds($$('[data-reader-study]:checked').map(c=>c.dataset.readerStudy));
   await setDoc(doc(db,'permissions',email),{allowedStudies:allowed,updatedAt:new Date().toISOString()},{merge:true});
   $('#readerEmail').value='';$$('[data-reader-study]').forEach(c=>c.checked=false);await renderOwnerPanel();
 }
@@ -212,6 +214,7 @@ async function importSeedFile(file){
 // Override loadStudyContent verse loading to use stored ref.
 const _loadStudyContent=loadStudyContent;
 loadStudyContent=async function(id){
+  id=normalizeStudyId(id);
   const studySnap=await getDoc(doc(db,'studies',id)); if(!studySnap.exists())throw new Error('Study content not found in Firestore.');
   const tSnap=await getDocs(collection(db,'studies',id,'topics'));topics=tSnap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.order||999)-(b.order||999));
   const vSnap=await getDocs(collection(db,'studies',id,'verses'));verses={};vSnap.docs.forEach(d=>{const x=d.data();verses[x.ref||decodeURIComponent(d.id)]=x.text||''});

@@ -20,14 +20,14 @@
     "release_order": 999
   },
   {
-    "id": "dead",
+    "id": "state-of-the-dead",
     "title": "The State of the Dead",
     "subtitle": "What happens after death?",
-    "description": "A Bible study on death, resurrection, and life after death.",
-    "icon": "◉",
-    "available": false,
-    "published": false,
-    "release_order": 999
+    "description": "A Bible study comparing the common conscious-intermediate-state interpretation, the Seventh-day Adventist interpretation, and a Bible-first reading of the major passages.",
+    "icon": "🕊️",
+    "available": true,
+    "published": true,
+    "release_order": 2
   },
   {
     "id": "sanctuary",
@@ -88,14 +88,5 @@
     "available": false,
     "published": false,
     "release_order": 999
-  },
-  {
-    "id": "state-of-the-dead",
-    "title": "The State of the Dead",
-    "subtitle": "What happens after death?",
-    "description": "A Bible study comparing the common conscious-intermediate-state interpretation, the Seventh-day Adventist interpretation, and a Bible-first reading of the major passages.",
-    "available": true,
-    "published": true,
-    "icon": "🕊️"
   }
 ]
