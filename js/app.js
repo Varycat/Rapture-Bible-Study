@@ -15,7 +15,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 let user=null, owner=false, studies=[], allowedStudies=[], currentStudy=null, topics=[], verses={}, currentTopic=0;
 
 const SETTINGS_KEY='bible-study-v11-settings';
-const defaults={title:'Bible Study Library',subtitle:'INTERACTIVE BIBLE STUDIES',heroTitle:'Bible Study Library',heroTagline:'Explore. Compare. Discover. Grow.',footer:'Let the Bible speak, and let us compare scripture with scripture.',font:'system',fontSize:100,primary:'#0c73e6',background:'#f7fafe',text:'#08245b',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#ffffff',tabText:'#081d55',sidebarBg:'#ffffff',sidebarText:'#092762',density:'comfortable',cardStyle:'rounded',sidebar:true,quotes:true,animations:true};
+const defaults={title:'Bible Study Library',subtitle:'INTERACTIVE BIBLE STUDIES',heroTitle:'Bible Study Library',heroTagline:'Explore. Compare. Discover. Grow.',footer:'Let the Bible speak, and let us compare scripture with scripture.',font:'system',fontSize:100,primary:'#0c73e6',background:'#f7fafe',text:'#08245b',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#ffffff',tabText:'#081d55',sidebarBg:'#ffffff',sidebarText:'#092762',studyBar:'#9dcfff',studyBarText:'#082068',studyTitleFont:'',studyBarSize:100,density:'comfortable',cardStyle:'rounded',sidebar:true,quotes:true,animations:true};
 
 function ekey(email){return String(email||'').trim().toLowerCase()}
 function normalizeStudyId(id){ return id==='dead' ? 'state-of-the-dead' : id; }
@@ -40,6 +40,10 @@ function applySettings(s){
   r.setProperty('--app-tab-text',s.tabText);
   r.setProperty('--app-sidebar-bg',s.sidebarBg);
   r.setProperty('--app-sidebar-text',s.sidebarText);
+  r.setProperty('--app-studybar',s.studyBar);
+  r.setProperty('--app-studybar-text',s.studyBarText);
+  r.setProperty('--app-studytitle-font',FONT_STACKS[s.studyTitleFont]||'inherit');
+  r.setProperty('--app-studybar-scale',String((s.studyBarSize||100)/100));
   r.setProperty('--app-font-scale',String(s.fontSize/100));
 
   document.body.className=`font-${s.font} density-${s.density} card-${s.cardStyle}`+
@@ -73,6 +77,11 @@ function fillSettings(){
   $('#settingTabText').value=s.tabText;
   $('#settingSidebarBg').value=s.sidebarBg;
   $('#settingSidebarText').value=s.sidebarText;
+  $('#settingStudyBar').value=s.studyBar;
+  $('#settingStudyBarText').value=s.studyBarText;
+  $('#settingStudyTitleFont').value=s.studyTitleFont;
+  $('#settingStudyBarSize').value=s.studyBarSize;
+  $('#studyBarSizeOut').value=s.studyBarSize+'%';
   $('#settingDensity').value=s.density;
   $('#settingCardStyle').value=s.cardStyle;
   $('#settingSidebar').checked=s.sidebar;
@@ -96,6 +105,10 @@ function readSettings(){return {
   tabText:$('#settingTabText').value,
   sidebarBg:$('#settingSidebarBg').value,
   sidebarText:$('#settingSidebarText').value,
+  studyBar:$('#settingStudyBar').value,
+  studyBarText:$('#settingStudyBarText').value,
+  studyTitleFont:$('#settingStudyTitleFont').value,
+  studyBarSize:+$('#settingStudyBarSize').value,
   density:$('#settingDensity').value,
   cardStyle:$('#settingCardStyle').value,
   sidebar:$('#settingSidebar').checked,
@@ -156,13 +169,17 @@ function closeSide(){$('#sidebar').classList.remove('open')}
 function visibleStudies(){return owner?studies:studies.filter(s=>allowedStudies.includes(s.id))}
 function renderLibrary(){
   const list=visibleStudies();
-  $('#featuredStudies').innerHTML=list.length?list.map((s,i)=>`<article class="studyCard ${i===0?'primary':''}"><div class="studyThumb">${s.icon||'📖'}</div><h3>${s.title}</h3><div class="sub">${s.subtitle||''}</div><p>${s.description||''}</p><button data-study="${s.id}">Open Study →</button></article>`).join(''):'<article class="studyCard"><h3>No studies unlocked yet</h3><p>Ask the owner to give you access to your first study.</p></article>';
+  $('#featuredStudies').innerHTML=list.length?list.map((s,i)=>`<article class="studyCard ${i===0?'primary':''}"><div class="studyThumb"><span class="thumbIcon">${s.icon||'📖'}</span></div><div class="cardBody"><h3 class="thumbTitle">${s.title}</h3><div class="sub">${s.subtitle||''}</div><p>${s.description||''}</p><button data-study="${s.id}">Open Study →</button></div></article>`).join(''):'<article class="studyCard"><div class="cardBody"><h3>No studies unlocked yet</h3><p>Ask the owner to give you access to your first study.</p></div></article>';
   $$('[data-study]').forEach(b=>b.onclick=()=>openStudy(b.dataset.study));
 }
 function renderSidebar(q=''){
   const list=visibleStudies().filter(s=>(s.title+' '+(s.subtitle||'')).toLowerCase().includes(q.toLowerCase()));
-  $('#sideTitle').textContent='📖 Studies';$('#sideNav').innerHTML=list.map(s=>`<button data-study="${s.id}">${s.icon||'📖'} ${s.title}<small>${s.subtitle||''}</small></button>`).join('');
+  $('#sideTitle').textContent='📖 Studies';
+  $('#sideNav').innerHTML=
+    `<button id="navAllStudies" class="navItem active"><span class="navIcon">▦</span><span class="navText">All Studies<small>Browse all Bible studies</small></span></button>`
+    +list.map(s=>`<button class="navItem" data-study="${s.id}"><span class="navIcon">${s.icon||'📖'}</span><span class="navText">${s.title}<small>${s.subtitle||''}</small></span></button>`).join('');
   $$('#sideNav [data-study]').forEach(b=>b.onclick=()=>openStudy(b.dataset.study));
+  const all=$('#navAllStudies'); if(all)all.onclick=showLibrary;
 }
 async function openStudy(id){
   id=normalizeStudyId(id);
@@ -245,18 +262,18 @@ async function importSeedFile(file){
 
 function applyPreset(name){
   const presets={
-    blue:{primary:'#0c73e6',background:'#f7fafe',text:'#08245b',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#ffffff',tabText:'#081d55',sidebarBg:'#ffffff',sidebarText:'#092762'},
-    forest:{primary:'#2f7d4a',background:'#f4faf5',text:'#173d28',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#eef7ef',tabText:'#173d28',sidebarBg:'#f0f8f1',sidebarText:'#1c4a30'},
-    warm:{primary:'#b86232',background:'#fff9f2',text:'#4b2b1c',card:'#ffffff',topbarBg:'#fffdf8',tabBg:'#fdf1e4',tabText:'#4b2b1c',sidebarBg:'#fdf4ea',sidebarText:'#55311c'},
-    dark:{primary:'#66aaff',background:'#0d1624',text:'#edf5ff',card:'#172336',topbarBg:'#111c2e',tabBg:'#1a2941',tabText:'#dce9ff',sidebarBg:'#111c2e',sidebarText:'#dce9ff'},
-    ocean:{primary:'#0e7f96',background:'#f2fafc',text:'#083744',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#e4f4f8',tabText:'#0a4553',sidebarBg:'#eaf6f9',sidebarText:'#0a4553'},
-    sunset:{primary:'#d3542e',background:'#fff7f3',text:'#4c2417',card:'#ffffff',topbarBg:'#fff2ea',tabBg:'#ffe6d9',tabText:'#5a2a18',sidebarBg:'#fff0e7',sidebarText:'#5a2a18'},
-    lavender:{primary:'#6d4fc4',background:'#f9f7ff',text:'#2d2352',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#efeafb',tabText:'#352a5e',sidebarBg:'#f2eefc',sidebarText:'#352a5e'},
-    olive:{primary:'#6a7a2c',background:'#fafbf2',text:'#2f3517',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#f0f3df',tabText:'#39411d',sidebarBg:'#f3f6e5',sidebarText:'#39411d'},
-    sepia:{primary:'#8a5a2b',background:'#f8f2e7',text:'#3e2f1c',card:'#fffaf0',topbarBg:'#fbf5ea',tabBg:'#f1e6d2',tabText:'#4a3820',sidebarBg:'#f5ecdb',sidebarText:'#4a3820'},
-    slate:{primary:'#4a6284',background:'#f4f6f9',text:'#232c38',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#e8edf4',tabText:'#2b3646',sidebarBg:'#edf1f6',sidebarText:'#2b3646'},
-    rose:{primary:'#b8375f',background:'#fff6f8',text:'#4c1a2b',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#fbe7ee',tabText:'#5a2036',sidebarBg:'#fcecf1',sidebarText:'#5a2036'},
-    midnight:{primary:'#8f7bff',background:'#0b0f1e',text:'#e9ecff',card:'#161c33',topbarBg:'#101528',tabBg:'#1c2340',tabText:'#d7ddff',sidebarBg:'#101528',sidebarText:'#d7ddff'}
+    blue:{primary:'#0c73e6',background:'#f7fafe',text:'#08245b',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#ffffff',tabText:'#081d55',sidebarBg:'#ffffff',sidebarText:'#092762',studyBar:'#9dcfff',studyBarText:'#082068'},
+    forest:{primary:'#2f7d4a',background:'#f4faf5',text:'#173d28',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#eef7ef',tabText:'#173d28',sidebarBg:'#f0f8f1',sidebarText:'#1c4a30',studyBar:'#a9dcb4',studyBarText:'#173d28'},
+    warm:{primary:'#b86232',background:'#fff9f2',text:'#4b2b1c',card:'#ffffff',topbarBg:'#fffdf8',tabBg:'#fdf1e4',tabText:'#4b2b1c',sidebarBg:'#fdf4ea',sidebarText:'#55311c',studyBar:'#f4c9a4',studyBarText:'#4b2b1c'},
+    dark:{primary:'#66aaff',background:'#0d1624',text:'#edf5ff',card:'#172336',topbarBg:'#111c2e',tabBg:'#1a2941',tabText:'#dce9ff',sidebarBg:'#111c2e',sidebarText:'#dce9ff',studyBar:'#24406b',studyBarText:'#dce9ff'},
+    ocean:{primary:'#0e7f96',background:'#f2fafc',text:'#083744',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#e4f4f8',tabText:'#0a4553',sidebarBg:'#eaf6f9',sidebarText:'#0a4553',studyBar:'#a3dcec',studyBarText:'#083744'},
+    sunset:{primary:'#d3542e',background:'#fff7f3',text:'#4c2417',card:'#ffffff',topbarBg:'#fff2ea',tabBg:'#ffe6d9',tabText:'#5a2a18',sidebarBg:'#fff0e7',sidebarText:'#5a2a18',studyBar:'#ffc9ad',studyBarText:'#5a2a18'},
+    lavender:{primary:'#6d4fc4',background:'#f9f7ff',text:'#2d2352',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#efeafb',tabText:'#352a5e',sidebarBg:'#f2eefc',sidebarText:'#352a5e',studyBar:'#cfc2f2',studyBarText:'#2d2352'},
+    olive:{primary:'#6a7a2c',background:'#fafbf2',text:'#2f3517',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#f0f3df',tabText:'#39411d',sidebarBg:'#f3f6e5',sidebarText:'#39411d',studyBar:'#d3ddab',studyBarText:'#2f3517'},
+    sepia:{primary:'#8a5a2b',background:'#f8f2e7',text:'#3e2f1c',card:'#fffaf0',topbarBg:'#fbf5ea',tabBg:'#f1e6d2',tabText:'#4a3820',sidebarBg:'#f5ecdb',sidebarText:'#4a3820',studyBar:'#e3cba3',studyBarText:'#3e2f1c'},
+    slate:{primary:'#4a6284',background:'#f4f6f9',text:'#232c38',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#e8edf4',tabText:'#2b3646',sidebarBg:'#edf1f6',sidebarText:'#2b3646',studyBar:'#c3d0e2',studyBarText:'#232c38'},
+    rose:{primary:'#b8375f',background:'#fff6f8',text:'#4c1a2b',card:'#ffffff',topbarBg:'#ffffff',tabBg:'#fbe7ee',tabText:'#5a2036',sidebarBg:'#fcecf1',sidebarText:'#5a2036',studyBar:'#f6c3d3',studyBarText:'#4c1a2b'},
+    midnight:{primary:'#8f7bff',background:'#0b0f1e',text:'#e9ecff',card:'#161c33',topbarBg:'#101528',tabBg:'#1c2340',tabText:'#d7ddff',sidebarBg:'#101528',sidebarText:'#d7ddff',studyBar:'#2c3560',studyBarText:'#d7ddff'}
   };
   const p=presets[name]; if(!p)return;
   $('#settingPrimary').value=p.primary;
@@ -268,6 +285,8 @@ function applyPreset(name){
   $('#settingTabText').value=p.tabText;
   $('#settingSidebarBg').value=p.sidebarBg;
   $('#settingSidebarText').value=p.sidebarText;
+  $('#settingStudyBar').value=p.studyBar;
+  $('#settingStudyBarText').value=p.studyBarText;
   applySettings(readSettings());
 }
 
@@ -736,7 +755,11 @@ function bind(){
     const o=$('#fontSizeOutput'); if(o)o.value=e.target.value+'%';
     applySettings(readSettings());
   });
-  ['settingTitle','settingSubtitle','settingHeroTitle','settingHeroTagline','settingFooter','settingFont','settingPrimary','settingBackground','settingText','settingCard','settingTopbarBg','settingTabBg','settingTabText','settingSidebarBg','settingSidebarText','settingDensity','settingCardStyle','settingSidebar','settingQuotes','settingAnimations']
+  on('#settingStudyBarSize','input',e=>{
+    const o=$('#studyBarSizeOut'); if(o)o.value=e.target.value+'%';
+    applySettings(readSettings());
+  });
+  ['settingTitle','settingSubtitle','settingHeroTitle','settingHeroTagline','settingFooter','settingFont','settingPrimary','settingBackground','settingText','settingCard','settingTopbarBg','settingTabBg','settingTabText','settingSidebarBg','settingSidebarText','settingStudyBar','settingStudyBarText','settingStudyTitleFont','settingDensity','settingCardStyle','settingSidebar','settingQuotes','settingAnimations']
     .forEach(id=>on('#'+id,'input',()=>applySettings(readSettings())));
 
   $$('[data-preset]').forEach(b=>b.addEventListener('click',()=>applyPreset(b.dataset.preset)));

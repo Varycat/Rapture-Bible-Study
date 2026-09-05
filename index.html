@@ -4,7 +4,7 @@
 <meta name="theme-color" content="#f8fbff"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Bible Studies">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png">
-<link rel="stylesheet" href="css/app.css?v=20"><title>Bible Study Library</title>
+<link rel="stylesheet" href="css/app.css?v=21"><title>Bible Study Library</title>
 <style id="v16ButtonFix">
   .topicActions{
     grid-column:1 / -1 !important;
@@ -116,7 +116,7 @@
 <div id="featuredStudies" class="featuredStudies"></div>
 <div class="libraryBottom">
 <article><h2>📖 About This Library</h2><p>This library provides interactive Bible studies to help you explore important topics, compare interpretations, and study the Scriptures for yourself. Each study includes a complete index, key verses, detailed explanations, and side-by-side comparisons.</p></article>
-<article><h2>🔗 Quick Links</h2><button id="howBtn">How to Use This Library ›</button><button id="faqBtn">Frequently Asked Questions ›</button><button id="suggestBtn">Suggest a New Study ›</button><button id="shareBtn">Share This Project ›</button></article>
+<article><h2>🔗 Quick Links</h2><button id="howBtn">How to Use This Library</button><button id="faqBtn">Frequently Asked Questions</button><button id="suggestBtn">Suggest a New Study</button><button id="shareBtn">Share This Project</button></article>
 </div>
 <div class="footerQuote">💡 “<span class="footerMessage">Let the Bible speak, and let us compare scripture with scripture.</span>”</div>
 </section>
@@ -343,6 +343,21 @@
           <option value="spacious">Spacious</option>
         </select>
       </label>
+      <label>Study title font
+        <select id="settingStudyTitleFont">
+          <option value="">Use app font</option>
+          <option value="system">Apple / System</option>
+          <option value="modern">Modern Sans</option>
+          <option value="serif">Classic Serif</option>
+          <option value="rounded">Rounded</option>
+        </select>
+      </label>
+      <label>Study banner &amp; title size
+        <div class="rangeRow">
+          <input id="settingStudyBarSize" type="range" min="80" max="160" step="5" value="100">
+          <output id="studyBarSizeOut">100%</output>
+        </div>
+      </label>
       <label>Card shape
         <select id="settingCardStyle">
           <option value="square">Square</option>
@@ -364,6 +379,8 @@
         <label>Tab text <input id="settingTabText" type="color"></label>
         <label>Sidebar <input id="settingSidebarBg" type="color"></label>
         <label>Sidebar text <input id="settingSidebarText" type="color"></label>
+        <label>Study banner <input id="settingStudyBar" type="color"></label>
+        <label>Banner title <input id="settingStudyBarText" type="color"></label>
       </div>
       <div class="presetRow">
         <button type="button" data-preset="blue">Classic Blue</button>
@@ -503,5 +520,5 @@
 })();
 </script>
 
-<script type="module" src="js/app.js?v=20"></script>
+<script type="module" src="js/app.js?v=21"></script>
 </body></html>

@@ -379,3 +379,38 @@ body.card-rounded{--app-radius:18px}
 .bibleContent h4{margin:4px 0 10px;font-family:inherit}
 #bibleCatalogList .readerAccessItem button[disabled]{opacity:.55}
 @media(max-width:560px){.floatPanel{right:8px;left:8px;width:auto;bottom:76px}.toolsFab{right:10px;bottom:10px}}
+
+/* ---------- v21 Mockup layout: banner cards, sidebar chips, hero ---------- */
+:root{--app-studybar:#9dcfff;--app-studybar-text:#082068;--app-studytitle-font:inherit;--app-studybar-scale:1}
+
+/* Study cards: banner with icon chip, title below (like the reference design) */
+.studyCard{padding:0!important;overflow:hidden;display:flex;flex-direction:column}
+.studyThumb{height:auto!important;aspect-ratio:16/5.2;margin:10px 10px 0;position:relative;border-radius:12px!important;padding:0!important;display:block!important;font-size:inherit!important;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(255,236,180,.75), transparent 45%),
+    linear-gradient(135deg,var(--app-studybar,#9dcfff),color-mix(in srgb,var(--app-studybar,#9dcfff) 28%,#ffffff))}
+.thumbIcon{position:absolute;left:14px;top:12px;width:calc(58px*var(--app-studybar-scale,1));height:calc(58px*var(--app-studybar-scale,1));background:rgba(255,255,255,.94);border-radius:14px;display:grid;place-items:center;font-size:calc(30px*var(--app-studybar-scale,1));box-shadow:0 5px 16px rgba(0,25,70,.18)}
+.cardBody{padding:10px 14px 14px;display:flex;flex-direction:column;flex:1;gap:2px}
+.studyCard h3.thumbTitle{margin:4px 0 0;font-size:calc(23px*var(--app-studybar-scale,1));font-family:var(--app-studytitle-font,inherit);color:var(--app-studybar-text,#082068)}
+.cardBody p{flex:1}
+.cardBody button{margin-top:8px}
+
+/* Sidebar: icon chips + All Studies row */
+.sidebar nav button.navItem{display:flex;align-items:center;gap:11px;background:var(--app-sidebar-bg,#fff);border:1px solid color-mix(in srgb,var(--app-sidebar-text,#092762) 10%,transparent);border-left:4px solid transparent;border-radius:12px}
+.sidebar nav button.navItem .navIcon{flex:0 0 auto;width:42px;height:42px;border-radius:11px;background:color-mix(in srgb,var(--app-primary,#0c73e6) 11%,var(--app-sidebar-bg,#fff));display:grid;place-items:center;font-size:21px;color:var(--app-primary,#0c73e6)}
+.sidebar nav button.navItem .navText{display:block;min-width:0}
+.sidebar nav button.navItem.active{background:color-mix(in srgb,var(--app-primary,#0c73e6) 10%,var(--app-sidebar-bg,#fff));border-left:4px solid var(--app-primary,#0c73e6)}
+
+/* Hero: scenic sunrise-style gradient */
+.hero{background:
+  radial-gradient(circle at 76% 32%, rgba(255,222,150,.85), rgba(255,196,120,.35) 26%, transparent 48%),
+  linear-gradient(175deg, rgba(255,255,255,.0) 55%, rgba(90,120,170,.28) 78%, rgba(60,90,140,.38) 100%),
+  linear-gradient(135deg,#b7d3f3 0%,#dceafb 40%,#f3ddc4 68%,#c8d9f0 100%)}
+.heroVerse{backdrop-filter:blur(3px)}
+
+/* Featured header + View All pill */
+.featureHeader button{border-radius:12px;display:inline-flex;align-items:center;gap:8px}
+
+/* Quick Links: rows with right chevrons */
+.libraryBottom article button{display:flex;justify-content:space-between;align-items:center;font-weight:700;min-height:44px}
+.libraryBottom article button::after{content:'›';color:var(--app-primary,#0c73e6);font-size:22px;font-weight:800;line-height:1}

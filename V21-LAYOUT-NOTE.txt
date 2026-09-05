@@ -1,0 +1,11 @@
+V21 redesigns the home layout to match the reference design.
+- Study cards: gradient banner with a floating icon chip, title below the banner,
+  full-width Open Study button (filled on the featured card, outlined otherwise).
+- Sidebar: "All Studies" row on top, then each study as a row with an icon chip;
+  active row highlighted with a left accent bar.
+- Hero: layered sunrise-style gradient with the verse card on the right.
+- Quick Links: row buttons with right-side chevrons.
+- New Settings (Colors): Study banner color and Banner title color.
+  New Settings (Font & Size): Study title font, Study banner & title size.
+  All 12 theme presets set matching banner colors.
+- Cache/assets bumped to v21.
