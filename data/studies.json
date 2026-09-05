@@ -1,0 +1,11 @@
+[
+  {
+    "id": "rapture",
+    "title": "The Rapture of the Church",
+    "subtitle": "Second Coming and End Times",
+    "description": "A Bible-first comparison of the Christian pre-tribulation interpretation and the Seventh-day Adventist interpretation.",
+    "icon": "\u2601\ufe0f",
+    "status": "available",
+    "topics_file": "topics.json"
+  }
+]
