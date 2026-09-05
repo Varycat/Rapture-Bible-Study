@@ -57,11 +57,13 @@ function applySettings(s){
   const heroTagline=$('#heroTagline'); if(heroTagline)heroTagline.textContent=s.heroTagline;
   $$('.footerMessage').forEach(x=>x.textContent=s.footer);
   applyPhotos();
-  if(studies.length&&!$('#libraryView').hidden)renderLibrary();
+  if(studies.length&&!$('#libraryView').hidden){renderLibrary();if(!currentStudy)renderSidebar($('#search')?.value||'')}
   document.title=s.title;
 }
 let heroImageValue=null, bannersDraft=null;
-let branding={hero:'',heroAdj:null,banners:{}};
+let branding={hero:'',heroAdj:null,banners:{},icons:{}};
+let iconsDraft=null;
+function effIcons(){return iconsDraft===null?branding.icons:iconsDraft}
 const DEFAULT_ADJ={posX:50,posY:50,zoom:100,bright:100,contrast:100,sat:100};
 let heroAdjDraft=null;
 function effHeroAdj(){return {...DEFAULT_ADJ,...(heroAdjDraft||branding.heroAdj||{})}}
@@ -83,10 +85,16 @@ function fillSettings(){
     if(el){el.value=heroAdjDraft[key];if(out)out.value=heroAdjDraft[key]+'%'}
   });
   bannersDraft={...branding.banners};
+  iconsDraft={...branding.icons};
   const bw=$('#studyBannerSettings');
   if(bw){
     const list=visibleStudies();
-    bw.innerHTML=list.length?list.map(st=>`<div class="bannerRow"><b>${st.icon||'📖'} ${esc(st.title)}</b><input type="url" placeholder="https://... photo link" data-banner-url="${st.id}" value="${bannersDraft[st.id]&&!String(bannersDraft[st.id]).startsWith('data:')?esc(bannersDraft[st.id]):''}"><div class="bannerRowBtns"><label class="bannerUpload">⬆ Upload<input type="file" accept="image/*" data-banner-file="${st.id}" hidden></label><button type="button" data-banner-clear="${st.id}">Remove</button></div></div>`).join(''):'<p class="smallHelp">No studies are visible yet.</p>';
+    bw.innerHTML=list.length?list.map(st=>`<div class="bannerRow"><b>${effIcons()[st.id]||st.icon||'📖'} ${esc(st.title)}</b><div class="iconRow"><label>Icon <input type="text" maxlength="4" data-banner-icon="${st.id}" value="${esc(iconsDraft[st.id]||st.icon||'')}" placeholder="📖"></label></div><input type="url" placeholder="https://... photo link" data-banner-url="${st.id}" value="${bannersDraft[st.id]&&!String(bannersDraft[st.id]).startsWith('data:')?esc(bannersDraft[st.id]):''}"><div class="bannerRowBtns"><label class="bannerUpload">⬆ Upload<input type="file" accept="image/*" data-banner-file="${st.id}" hidden></label><button type="button" data-banner-clear="${st.id}">Remove</button></div></div>`).join(''):'<p class="smallHelp">No studies are visible yet.</p>';
+    $$('[data-banner-icon]').forEach(i=>i.addEventListener('input',()=>{
+      const v=i.value.trim(),id=i.dataset.bannerIcon,cat=studies.find(x=>x.id===id);
+      if(v&&v!==(cat?.icon||''))iconsDraft[id]=v;else delete iconsDraft[id];
+      applySettings(readSettings());
+    }));
     $$('[data-banner-url]').forEach(i=>i.addEventListener('input',()=>{const v=i.value.trim();if(v)bannersDraft[i.dataset.bannerUrl]=v;else delete bannersDraft[i.dataset.bannerUrl];applySettings(readSettings())}));
     $$('[data-banner-file]').forEach(f=>f.addEventListener('change',async()=>{
       try{const d=await fileToCompressedDataURL(f.files[0],1200,220000,300000);if(d){bannersDraft[f.dataset.bannerFile]=d;const u=bw.querySelector(`[data-banner-url="${f.dataset.bannerFile}"]`);if(u)u.value='';applySettings(readSettings())}}
@@ -203,7 +211,7 @@ function closeSide(){$('#sidebar').classList.remove('open')}
 function visibleStudies(){return owner?studies:studies.filter(s=>allowedStudies.includes(s.id))}
 function renderLibrary(){
   const list=visibleStudies();
-  $('#featuredStudies').innerHTML=list.length?list.map((s,i)=>`<article class="studyCard ${i===0?'primary':''}"><div class="studyThumb${effBanners()[s.id]?' hasPhoto':''}"${effBanners()[s.id]?` style="--card-photo:url('${effBanners()[s.id]}')"`:''}><span class="thumbIcon">${s.icon||'📖'}</span></div><div class="cardBody"><h3 class="thumbTitle">${s.title}</h3><div class="sub">${s.subtitle||''}</div><p>${s.description||''}</p><button data-study="${s.id}">Open Study →</button></div></article>`).join(''):'<article class="studyCard"><div class="cardBody"><h3>No studies unlocked yet</h3><p>Ask the owner to give you access to your first study.</p></div></article>';
+  $('#featuredStudies').innerHTML=list.length?list.map((s,i)=>`<article class="studyCard ${i===0?'primary':''}"><div class="studyThumb${effBanners()[s.id]?' hasPhoto':''}"${effBanners()[s.id]?` style="--card-photo:url('${effBanners()[s.id]}')"`:''}><span class="thumbIcon">${effIcons()[s.id]||s.icon||'📖'}</span></div><div class="cardBody"><h3 class="thumbTitle">${s.title}</h3><div class="sub">${s.subtitle||''}</div><p>${s.description||''}</p><button data-study="${s.id}">Open Study →</button></div></article>`).join(''):'<article class="studyCard"><div class="cardBody"><h3>No studies unlocked yet</h3><p>Ask the owner to give you access to your first study.</p></div></article>';
   $$('[data-study]').forEach(b=>b.onclick=()=>openStudy(b.dataset.study));
 }
 function renderSidebar(q=''){
@@ -211,7 +219,7 @@ function renderSidebar(q=''){
   $('#sideTitle').textContent='📖 Studies';
   $('#sideNav').innerHTML=
     `<button id="navAllStudies" class="navItem active"><span class="navIcon">▦</span><span class="navText">All Studies<small>Browse all Bible studies</small></span></button>`
-    +list.map(s=>`<button class="navItem" data-study="${s.id}"><span class="navIcon">${s.icon||'📖'}</span><span class="navText">${s.title}<small>${s.subtitle||''}</small></span></button>`).join('');
+    +list.map(s=>`<button class="navItem" data-study="${s.id}"><span class="navIcon">${effIcons()[s.id]||s.icon||'📖'}</span><span class="navText">${s.title}<small>${s.subtitle||''}</small></span></button>`).join('');
   $$('#sideNav [data-study]').forEach(b=>b.onclick=()=>openStudy(b.dataset.study));
   const all=$('#navAllStudies'); if(all)all.onclick=showLibrary;
 }
@@ -766,8 +774,8 @@ function applyPhotos(){
 async function loadBranding(){
   try{
     const snap=await getDocs(collection(db,'branding'));
-    const b={hero:'',heroAdj:null,banners:{}};
-    snap.docs.forEach(d=>{const x=d.data(),src=x.src||'';if(d.id==='hero'){b.hero=src;b.heroAdj=x.adj||null}else if(d.id.startsWith('banner-'))b.banners[d.id.slice(7)]=src});
+    const b={hero:'',heroAdj:null,banners:{},icons:{}};
+    snap.docs.forEach(d=>{const x=d.data();if(d.id==='hero'){b.hero=x.src||'';b.heroAdj=x.adj||null}else if(d.id.startsWith('banner-')){const id=d.id.slice(7);if(x.src)b.banners[id]=x.src;if(x.icon)b.icons[id]=x.icon}});
     branding=b;
   }catch(e){console.warn('Branding not loaded:',e.message)}
   applyPhotos();
@@ -777,15 +785,22 @@ async function saveBranding(){
   if(!owner)return;
   const hero=heroImageValue===null?branding.hero:heroImageValue;
   const banners=bannersDraft===null?branding.banners:bannersDraft;
+  const icons=iconsDraft===null?branding.icons:iconsDraft;
   const batch=writeBatch(db);
   const now=new Date().toISOString();
   const adj=effHeroAdj();
   if(hero)batch.set(doc(db,'branding','hero'),{src:hero,adj,updatedAt:now});
   else batch.delete(doc(db,'branding','hero'));
-  Object.keys(banners).forEach(id=>batch.set(doc(db,'branding','banner-'+id),{src:banners[id],updatedAt:now}));
-  Object.keys(branding.banners).forEach(id=>{if(!(id in banners))batch.delete(doc(db,'branding','banner-'+id))});
+  const ids=new Set([...Object.keys(banners),...Object.keys(icons),...Object.keys(branding.banners),...Object.keys(branding.icons)]);
+  ids.forEach(id=>{
+    const data={updatedAt:now};
+    if(banners[id])data.src=banners[id];
+    if(icons[id])data.icon=icons[id];
+    if(data.src||data.icon)batch.set(doc(db,'branding','banner-'+id),data);
+    else batch.delete(doc(db,'branding','banner-'+id));
+  });
   await batch.commit();
-  branding={hero,heroAdj:{...adj},banners:{...banners}};
+  branding={hero,heroAdj:{...adj},banners:{...banners},icons:{...icons}};
 }
 
 function bind(){

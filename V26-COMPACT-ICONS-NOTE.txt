@@ -1,0 +1,10 @@
+V26 matches the reference layout proportions and adds study icon editing.
+- Compact layout: hero 218px tall; study card banners fixed at 96px with a
+  smaller icon chip; tighter card padding, titles, text, and buttons; smaller
+  About/Quick Links cards. The page now mirrors the reference design's density.
+- Settings -> "🖼 Study Banners & Icons" (owner only): each study row now has an
+  Icon box — type any emoji to change that study's icon on its card, in the
+  sidebar, and everywhere it appears. Saved to Firestore with Save Settings
+  (branding/banner-<study> {icon}), so every reader sees the new icons.
+  Clearing the box returns to the study's original icon.
+- Cache/assets bumped to v26.

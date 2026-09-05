@@ -467,3 +467,28 @@ body.card-rounded{--app-radius:18px}
   font-weight:850;padding:13px 22px;font-size:16px;box-shadow:0 12px 34px rgba(0,25,80,.35);cursor:pointer;
 }
 .backToSettings[hidden]{display:none}
+
+/* ---------- v26 Compact cards to match the reference design ---------- */
+.hero{height:218px;padding:24px 28px}
+.hero h1{font-size:44px}
+.hero h3{font-size:19px;margin:5px 0}
+.hero p{font-size:15px;line-height:1.5}
+.heroVerse{font-size:15px;padding:12px 16px;top:14px;right:14px}
+.featuredStudies{gap:12px}
+.studyThumb{aspect-ratio:auto !important;height:96px !important;margin:8px 8px 0}
+.thumbIcon{left:10px;top:10px;width:calc(46px*var(--app-studybar-scale,1));height:calc(46px*var(--app-studybar-scale,1));font-size:calc(24px*var(--app-studybar-scale,1));border-radius:11px}
+.cardBody{padding:8px 12px 12px}
+.studyCard h3.thumbTitle{font-size:calc(20px*var(--app-studybar-scale,1));margin:3px 0 0}
+.studyCard .sub{font-size:14px;margin-top:1px}
+.cardBody p{font-size:14px;line-height:1.45;margin:6px 0 0}
+.cardBody button{height:40px;margin-top:8px}
+.libraryBottom{margin-top:12px}
+.libraryBottom article{padding:14px}
+.libraryBottom h2{font-size:19px;margin:0 0 8px}
+.libraryBottom p{font-size:14px;line-height:1.5}
+.libraryBottom article button{min-height:40px;font-size:14px;padding:7px 3px}
+.featureHeader h2{font-size:23px;margin:13px 0 9px}
+.featureHeader button{padding:8px 12px;font-size:14px}
+@media(max-width:760px){.hero{height:auto;min-height:190px}}
+.iconRow label{display:flex!important;align-items:center;gap:8px;font-weight:800;font-size:14px}
+.iconRow input{width:74px;min-height:38px;border:1px solid var(--line,#dce6f2);border-radius:9px;text-align:center;font-size:20px;background:var(--app-card,#fff)}
