@@ -61,7 +61,10 @@ function applySettings(s){
   document.title=s.title;
 }
 let heroImageValue=null, bannersDraft=null;
-let branding={hero:'',banners:{}};
+let branding={hero:'',heroAdj:null,banners:{}};
+const DEFAULT_ADJ={posX:50,posY:50,zoom:100,bright:100,contrast:100,sat:100};
+let heroAdjDraft=null;
+function effHeroAdj(){return {...DEFAULT_ADJ,...(heroAdjDraft||branding.heroAdj||{})}}
 function fillSettings(){
   const s=settings();
   $('#settingTitle').value=s.title;
@@ -74,6 +77,11 @@ function fillSettings(){
   $('#settingHeroImageFile').value='';
   const hp=$('#heroPhotoControls');if(hp)hp.hidden=!owner;
   const sbs=$('#studyBannerSection');if(sbs)sbs.hidden=!owner;
+  heroAdjDraft={...effHeroAdj()};
+  [['heroPosX','posX'],['heroPosY','posY'],['heroZoom','zoom'],['heroBright','bright'],['heroContrast','contrast'],['heroSat','sat']].forEach(([id,key])=>{
+    const el=$('#'+id),out=$('#'+id+'Out');
+    if(el){el.value=heroAdjDraft[key];if(out)out.value=heroAdjDraft[key]+'%'}
+  });
   bannersDraft={...branding.banners};
   const bw=$('#studyBannerSettings');
   if(bw){
@@ -741,7 +749,16 @@ function applyPhotos(){
   const hero=document.querySelector('.hero');
   const h=heroImageValue===null?branding.hero:heroImageValue;
   if(hero){
-    if(h){hero.classList.add('hasPhoto');hero.style.setProperty('--hero-photo',`url("${h}")`)}
+    if(h){
+      const a=effHeroAdj();
+      hero.classList.add('hasPhoto');
+      hero.style.setProperty('--hero-photo',`url("${h}")`);
+      hero.style.setProperty('--hero-pos',`${a.posX}% ${a.posY}%`);
+      hero.style.setProperty('--hero-zoom',String((a.zoom||100)/100));
+      hero.style.setProperty('--hero-bright',String((a.bright||100)/100));
+      hero.style.setProperty('--hero-contrast',String((a.contrast||100)/100));
+      hero.style.setProperty('--hero-sat',String((a.sat||100)/100));
+    }
     else{hero.classList.remove('hasPhoto');hero.style.removeProperty('--hero-photo')}
   }
   applyStudyHeaderBanner();
@@ -749,8 +766,8 @@ function applyPhotos(){
 async function loadBranding(){
   try{
     const snap=await getDocs(collection(db,'branding'));
-    const b={hero:'',banners:{}};
-    snap.docs.forEach(d=>{const src=d.data().src||'';if(d.id==='hero')b.hero=src;else if(d.id.startsWith('banner-'))b.banners[d.id.slice(7)]=src});
+    const b={hero:'',heroAdj:null,banners:{}};
+    snap.docs.forEach(d=>{const x=d.data(),src=x.src||'';if(d.id==='hero'){b.hero=src;b.heroAdj=x.adj||null}else if(d.id.startsWith('banner-'))b.banners[d.id.slice(7)]=src});
     branding=b;
   }catch(e){console.warn('Branding not loaded:',e.message)}
   applyPhotos();
@@ -762,12 +779,13 @@ async function saveBranding(){
   const banners=bannersDraft===null?branding.banners:bannersDraft;
   const batch=writeBatch(db);
   const now=new Date().toISOString();
-  if(hero)batch.set(doc(db,'branding','hero'),{src:hero,updatedAt:now});
+  const adj=effHeroAdj();
+  if(hero)batch.set(doc(db,'branding','hero'),{src:hero,adj,updatedAt:now});
   else batch.delete(doc(db,'branding','hero'));
   Object.keys(banners).forEach(id=>batch.set(doc(db,'branding','banner-'+id),{src:banners[id],updatedAt:now}));
   Object.keys(branding.banners).forEach(id=>{if(!(id in banners))batch.delete(doc(db,'branding','banner-'+id))});
   await batch.commit();
-  branding={hero,banners:{...banners}};
+  branding={hero,heroAdj:{...adj},banners:{...banners}};
 }
 
 function bind(){
@@ -835,7 +853,31 @@ function bind(){
       applySettings(readSettings());
     }catch(err){openDialog('Hero Photo',`<p>${err.message}</p>`)}
   });
-  on('#clearHeroImage','click',()=>{heroImageValue='';$('#settingHeroImage').value='';$('#settingHeroImageFile').value='';applySettings(readSettings())});
+  on('#clearHeroImage','click',()=>{heroImageValue='';heroAdjDraft={...DEFAULT_ADJ};$('#settingHeroImage').value='';$('#settingHeroImageFile').value='';applySettings(readSettings())});
+  [['heroPosX','posX'],['heroPosY','posY'],['heroZoom','zoom'],['heroBright','bright'],['heroContrast','contrast'],['heroSat','sat']].forEach(([id,key])=>{
+    on('#'+id,'input',e=>{
+      if(heroAdjDraft===null)heroAdjDraft={...effHeroAdj()};
+      heroAdjDraft[key]=+e.target.value;
+      const out=$('#'+id+'Out');if(out)out.value=e.target.value+'%';
+      applyPhotos();
+    });
+  });
+  on('#heroResetAdj','click',()=>{
+    heroAdjDraft={...DEFAULT_ADJ};
+    [['heroPosX','posX'],['heroPosY','posY'],['heroZoom','zoom'],['heroBright','bright'],['heroContrast','contrast'],['heroSat','sat']].forEach(([id,key])=>{
+      const el=$('#'+id),out=$('#'+id+'Out');if(el){el.value=DEFAULT_ADJ[key];if(out)out.value=DEFAULT_ADJ[key]+'%'}
+    });
+    applyPhotos();
+  });
+  on('#heroPreviewBtn','click',()=>{
+    $('#settingsDialog')?.close();
+    showLibrary();
+    const b=$('#backToSettings');if(b)b.hidden=false;
+  });
+  on('#backToSettings','click',()=>{
+    const b=$('#backToSettings');if(b)b.hidden=true;
+    const d=$('#settingsDialog');if(d&&!d.open)d.showModal();
+  });
   ['settingTitle','settingSubtitle','settingHeroTitle','settingHeroTagline','settingFooter','settingFont','settingPrimary','settingBackground','settingText','settingCard','settingTopbarBg','settingTabBg','settingTabText','settingSidebarBg','settingSidebarText','settingStudyBar','settingStudyBarText','settingStudyTitleFont','settingDensity','settingCardStyle','settingSidebar','settingQuotes','settingAnimations']
     .forEach(id=>on('#'+id,'input',()=>applySettings(readSettings())));
 

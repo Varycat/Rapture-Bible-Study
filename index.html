@@ -4,7 +4,7 @@
 <meta name="theme-color" content="#f8fbff"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Bible Studies">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png">
-<link rel="stylesheet" href="css/app.css?v=24"><title>Bible Study Library</title>
+<link rel="stylesheet" href="css/app.css?v=25"><title>Bible Study Library</title>
 <style id="v16ButtonFix">
   .topicActions{
     grid-column:1 / -1 !important;
@@ -325,8 +325,21 @@
         <label>Or upload a photo from this device
           <input id="settingHeroImageFile" type="file" accept="image/*">
         </label>
-        <button type="button" id="clearHeroImage" class="secondarySettingBtn">Remove hero photo</button>
-        <p class="smallHelp">The photo fills the big welcome banner for all readers. A soft white overlay keeps the title readable. Click Save Settings to publish it.</p>
+        <div id="heroAdjust" class="heroAdjust">
+          <b>Adjust the photo</b>
+          <label>Move left / right <div class="rangeRow"><input id="heroPosX" type="range" min="0" max="100" step="1" value="50"><output id="heroPosXOut">50%</output></div></label>
+          <label>Move up / down <div class="rangeRow"><input id="heroPosY" type="range" min="0" max="100" step="1" value="50"><output id="heroPosYOut">50%</output></div></label>
+          <label>Zoom <div class="rangeRow"><input id="heroZoom" type="range" min="100" max="220" step="5" value="100"><output id="heroZoomOut">100%</output></div></label>
+          <label>Brightness <div class="rangeRow"><input id="heroBright" type="range" min="50" max="160" step="5" value="100"><output id="heroBrightOut">100%</output></div></label>
+          <label>Contrast <div class="rangeRow"><input id="heroContrast" type="range" min="50" max="160" step="5" value="100"><output id="heroContrastOut">100%</output></div></label>
+          <label>Color intensity <div class="rangeRow"><input id="heroSat" type="range" min="0" max="200" step="5" value="100"><output id="heroSatOut">100%</output></div></label>
+        </div>
+        <div class="heroBtnRow">
+          <button type="button" id="heroPreviewBtn" class="primarySettingBtn">👁 Preview</button>
+          <button type="button" id="heroResetAdj" class="secondarySettingBtn">Reset adjustments</button>
+          <button type="button" id="clearHeroImage" class="secondarySettingBtn">Remove hero photo</button>
+        </div>
+        <p class="smallHelp">The photo and these adjustments are shown to all readers. Preview hides this window so you can see the banner; click Save Settings to publish.</p>
       </div>
     </section>
 
@@ -482,6 +495,8 @@
 
 <dialog id="dialog"><button id="closeDialog">×</button><h2 id="dialogTitle"></h2><div id="dialogBody"></div></dialog>
 
+<button id="backToSettings" class="backToSettings" hidden>⚙ Back to Settings</button>
+
 <div id="toolsFab" class="toolsFab">
   <button id="fabNotes" title="My Notes">📝</button>
   <button id="fabSearch" title="Search">🔍</button>
@@ -536,5 +551,5 @@
 })();
 </script>
 
-<script type="module" src="js/app.js?v=24"></script>
+<script type="module" src="js/app.js?v=25"></script>
 </body></html>

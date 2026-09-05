@@ -1,0 +1,16 @@
+V25 adds hero photo adjustment controls and a Preview button (owner only).
+- Settings -> Titles & Text -> "Adjust the photo":
+  * Move left/right and up/down (position)
+  * Zoom (100-220%)
+  * Brightness, Contrast, Color intensity (50-160% / 0-200%)
+  * Reset adjustments
+- "👁 Preview" hides the Settings window and jumps to the home page so you can
+  see the banner full size; a floating "⚙ Back to Settings" button returns you
+  with your unsaved changes intact.
+- The photo is rendered on its own layer, so the adjustments and color filters
+  never affect the hero title or text.
+- Adjustments are saved to Firestore together with the photo (branding/hero
+  {src, adj}) when you click Save Settings — readers see the exact same framing.
+- Reopening Settings without saving discards unsaved photo changes (reloads the
+  published version from Firestore).
+- Cache/assets bumped to v25.

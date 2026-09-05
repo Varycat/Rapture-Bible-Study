@@ -438,3 +438,32 @@ body.card-rounded{--app-radius:18px}
 .bannerRowBtns{display:flex;gap:8px}
 .bannerUpload{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line,#dce6f2);border-radius:9px;padding:8px 12px;font-weight:800;cursor:pointer;background:var(--app-card,#fff)}
 .bannerRowBtns button{border:1px solid #e4aaa2;background:#fff3f1;color:#a33326;border-radius:9px;padding:8px 12px;font-weight:800;cursor:pointer}
+
+/* ---------- v25 Hero photo adjustments + preview ---------- */
+/* Photo moves to a dedicated layer so position/zoom/color filters never touch the text. */
+.hero.hasPhoto{background:#dfe9f6 !important;position:relative}
+.hero.hasPhoto::before{
+  content:"";position:absolute;inset:0;z-index:0;border-radius:inherit;
+  background:var(--hero-photo) no-repeat;
+  background-size:cover;
+  background-position:var(--hero-pos,50% 50%);
+  transform:scale(var(--hero-zoom,1));
+  transform-origin:var(--hero-pos,50% 50%);
+  filter:brightness(var(--hero-bright,1)) contrast(var(--hero-contrast,1)) saturate(var(--hero-sat,1));
+}
+.hero.hasPhoto::after{
+  content:"";position:absolute;inset:0;z-index:1;height:auto;
+  background:
+    linear-gradient(90deg,rgba(246,250,255,.9) 0%,rgba(246,250,255,.6) 40%,rgba(246,250,255,.05) 72%,rgba(246,250,255,0) 100%),
+    linear-gradient(180deg,transparent 60%,rgba(20,40,80,.2));
+}
+.heroAdjust{display:grid;gap:8px;border:1px solid var(--line,#dce6f2);border-radius:11px;padding:12px;margin-top:6px}
+.heroAdjust b{font-size:14px}
+.heroAdjust label{display:grid;gap:4px;font-weight:700;font-size:14px;margin:0!important}
+.heroBtnRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.backToSettings{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:950;
+  border:0;border-radius:999px;background:var(--app-primary,#0c73e6);color:#fff;
+  font-weight:850;padding:13px 22px;font-size:16px;box-shadow:0 12px 34px rgba(0,25,80,.35);cursor:pointer;
+}
+.backToSettings[hidden]{display:none}
