@@ -1,0 +1,12 @@
+V31 adds per-topic icons to the Study Index.
+- Every topic can now have its own icon, shown in the sidebar Study Index and
+  on the topic cards (icon chip + numbered title, like the reference design).
+- Edit a topic's icon in ✎ Edit Topic: "Topic icon" accepts an emoji or a
+  pasted image link, and "Or upload an icon file" takes your own PNG/SVG/WebP
+  (transparent backgrounds preserved; auto-resized to 128px).
+- Topics without an icon show 📖.
+- Reminder of where each icon is edited:
+  * STUDY icons/banners  -> Settings -> 🖼 Study Banners & Icons (owner)
+  * TOPIC icons          -> ✎ Edit Topic on that topic (owner)
+  * NAVIGATION link icons-> Settings -> 🧭 Navigation Links (owner)
+- Cache/assets bumped to v31.

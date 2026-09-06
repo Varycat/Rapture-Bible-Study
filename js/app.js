@@ -110,7 +110,8 @@ en:{
  delStudyConfirm:'Delete this study and all its topics permanently? This cannot be undone.',
  runDiag:'▶ Run diagnostics',diagFixCache:'🧹 Clear app cache & update',diagFixBible:'🧹 Clear Bible device cache',
  sectionTplL:'Insert a ready-made section title',
- favAdd:'Add to favorites',favDel:'Remove from favorites'
+ favAdd:'Add to favorites',favDel:'Remove from favorites',
+ topicIconL:'Topic icon',iconFileL:'Or upload an icon file (PNG, SVG, WebP — transparent backgrounds work)'
 },
 es:{
  home:'Inicio',about:'Acerca',settings:'Ajustes',signOut:'Salir',
@@ -180,7 +181,8 @@ es:{
  delStudyConfirm:'¿Eliminar este estudio y todos sus temas permanentemente? Esto no se puede deshacer.',
  runDiag:'▶ Ejecutar diagnóstico',diagFixCache:'🧹 Limpiar caché y actualizar',diagFixBible:'🧹 Limpiar caché de Biblia del dispositivo',
  sectionTplL:'Insertar un título de sección predefinido',
- favAdd:'Añadir a favoritos',favDel:'Quitar de favoritos'
+ favAdd:'Añadir a favoritos',favDel:'Quitar de favoritos',
+ topicIconL:'Icono del tema',iconFileL:'O sube un archivo de icono (PNG, SVG, WebP — fondos transparentes funcionan)'
 }
 };
 function t(k){return (I18N[lang]&&I18N[lang][k])??I18N.en[k]??k}
@@ -209,7 +211,7 @@ const I18N_MAP=[
  ['label:has(#importPaste)','pasteL','label'],['label:has(#importFile)','importFileL','label'],['label:has(#importUrl)','importUrlL','label'],
  ['#analyzeImport','analyzeBtn'],['#importUrlBtn','importUrlBtn'],['#runDiagBtn','runDiag'],
  ['label:has(#editStudyStatus)','statusL','label'],['label:has(#editStudyLang)','languageStudyL','label'],['#deleteStudyBtn','deleteStudy'],
- ['label:has(#sectionTemplate)','sectionTplL','label'],
+ ['label:has(#sectionTemplate)','sectionTplL','label'],['label:has(#editTopicIcon)','topicIconL','label'],['label:has(#editTopicIconFile)','iconFileL','label'],
  ['#saveSettings','saveSettings'],['#resetSettings','resetAppearance'],
  ['label:has(#settingTitle)','appTitle','label'],['label:has(#settingSubtitle)','subtitleL','label'],
  ['label:has(#settingHeroTitle)','heroTitleL','label'],['label:has(#settingHeroTagline)','heroTagL','label'],
@@ -311,6 +313,11 @@ let navDraft=null;
 function effNavLinks(){return navDraft===null?branding.navLinks:navDraft}
 let iconsDraft=null;
 function effIcons(){return iconsDraft===null?branding.icons:iconsDraft}
+let topicIconDraft='';
+function topicIconHTML(tp){
+  const v=tp.icon||'📖';
+  return (String(v).startsWith('data:')||String(v).startsWith('http'))?`<img class="iconImg" src="${v}" alt="" loading="lazy">`:v;
+}
 function iconHTML(id,fallback){
   const v=effIcons()[id]||fallback||'📖';
   return (String(v).startsWith('data:')||String(v).startsWith('http'))?`<img class="iconImg" src="${v}" alt="" loading="lazy">`:v;
@@ -560,8 +567,8 @@ async function openStudy(id){
 function renderTopicIndex(q=''){
   const m=topics.filter(t=>(t.title+' '+(t.subtitle||'')+' '+(t.verses||[]).join(' ')).toLowerCase().includes(q.toLowerCase()));
   $('#sideTitle').textContent=t('studyIndexTitle');
-  $('#sideNav').innerHTML=m.map((t,i)=>`<button data-topic="${t.id}">${topics.indexOf(t)+1}. ${t.title}<small>${t.subtitle||''}</small></button>`).join('');
-  $('#topicCards').innerHTML=m.map(t=>`<button data-topic="${t.id}"><h3>${topics.indexOf(t)+1}. ${t.title}</h3><p>${t.subtitle||''}</p></button>`).join('');
+  $('#sideNav').innerHTML=m.map((t,i)=>`<button class="navItem" data-topic="${t.id}"><span class="navIcon">${topicIconHTML(t)}</span><span class="navText">${topics.indexOf(t)+1}. ${t.title}<small>${t.subtitle||''}</small></span></button>`).join('');
+  $('#topicCards').innerHTML=m.map(t=>`<button data-topic="${t.id}"><span class="topicCardIcon">${topicIconHTML(t)}</span><span class="topicCardBody"><h3>${topics.indexOf(t)+1}. ${t.title}</h3><p>${t.subtitle||''}</p></span></button>`).join('');
   $$('[data-topic]').forEach(b=>b.onclick=()=>openTopic(b.dataset.topic));
   const c=$('#completeStudyBtn'); if(c)c.hidden=false; updateOwnerButtons(); refreshProgressUI();
 }
@@ -577,7 +584,7 @@ function renderTopic(){
   renderTopicExtras(t);updateOwnerButtons();
   $('#relatedList').innerHTML=topics.filter((_,i)=>i!==currentTopic).slice(0,4).map(r=>`<button data-related="${r.id}">${r.title} ›</button>`).join('');
   $$('[data-related]').forEach(b=>b.onclick=()=>openTopic(b.dataset.related));
-  $('#sideNav').innerHTML=topics.map((x,i)=>`<button class="${i===currentTopic?'active':''}" data-topic="${x.id}">${i+1}. ${x.title}<small>${x.subtitle||''}</small></button>`).join('');
+  $('#sideNav').innerHTML=topics.map((x,i)=>`<button class="navItem ${i===currentTopic?'active':''}" data-topic="${x.id}"><span class="navIcon">${topicIconHTML(x)}</span><span class="navText">${i+1}. ${x.title}<small>${x.subtitle||''}</small></span></button>`).join('');
   $$('#sideNav [data-topic]').forEach(b=>b.onclick=()=>openTopic(b.dataset.topic));
   $('#prevBtn').disabled=currentTopic===0;$('#nextBtn').disabled=currentTopic===topics.length-1;refreshProgressUI();
 }
@@ -724,6 +731,9 @@ function openTopicEditor(){
 
   $('#editTopicTitle').value=t.title||'';
   $('#editTopicSubtitle').value=t.subtitle||'';
+  topicIconDraft=t.icon||'';
+  $('#editTopicIcon').value=(t.icon&&!String(t.icon).startsWith('data:'))?t.icon:'';
+  $('#editTopicIconFile').value='';
   $('#editTopicVerses').value=(t.verses||[]).join(', ');
   $('#editTopicVideos').value=(t.videos||[]).join('\n');
   $('#editPreSummary').value=t.pretrib?.summary||'';
@@ -791,6 +801,7 @@ async function saveTopicEditor(){
   const patch={
     title:$('#editTopicTitle').value.trim(),
     subtitle:$('#editTopicSubtitle').value.trim(),
+    icon:topicIconDraft||'',
     verses:$('#editTopicVerses').value.split(',').map(x=>x.trim()).filter(Boolean),
     videos:videoLines('#editTopicVideos'),
     pretrib:{...(t.pretrib||{}),summary:$('#editPreSummary').value.trim(),teaching:$('#editPreTeaching').value.trim(),videos:videoLines('#editPreVideos')},
@@ -1524,6 +1535,13 @@ function bind(){
   });
   on('#runDiagBtn','click',()=>runDiagnostics());
   on('#deleteStudyBtn','click',()=>deleteCustomStudy().catch(e=>openDialog('Delete',`<p>${esc(e.message)}</p>`)));
+  on('#editTopicIcon','input',e=>{topicIconDraft=e.target.value.trim()});
+  on('#editTopicIconFile','change',async e=>{
+    try{
+      const d=await fileToCompressedDataURL(e.target.files[0],128,18000,30000);
+      if(d){topicIconDraft=d;$('#editTopicIcon').value=''}
+    }catch(err){openDialog('Topic Icon',`<p>${esc(err.message)}</p>`)}
+  });
   on('#sectionTemplate','change',e=>{
     if(e.target.value){$('#editExtraTitle').value=e.target.value;e.target.value=''}
   });

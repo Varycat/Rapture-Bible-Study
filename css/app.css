@@ -575,3 +575,11 @@ dialog::-webkit-scrollbar{width:0;height:0;display:none}
   cursor:pointer;
 }
 .studyCard .titleRow button.favBtn:hover{background:rgba(201,162,39,.12) !important}
+
+/* ---------- v31 Topic icons in the study index ---------- */
+.topicCards button{display:flex;gap:11px;align-items:flex-start;text-align:left}
+.topicCardIcon{flex:0 0 auto;width:42px;height:42px;border-radius:11px;background:color-mix(in srgb,var(--app-primary,#0c73e6) 11%,var(--app-card,#fff));display:grid;place-items:center;font-size:21px}
+.topicCardIcon img.iconImg{width:74%;height:74%;object-fit:contain;border-radius:6px}
+.topicCardBody{display:block;min-width:0}
+.topicCardBody h3{margin:0 0 4px}
+.topicCardBody p{margin:0}
