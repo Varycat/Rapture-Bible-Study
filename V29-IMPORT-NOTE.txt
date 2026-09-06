@@ -1,0 +1,36 @@
+V29: study import & publishing, library filters & favorites, diagnostics.
+
+1. IMPORT A BIBLE STUDY (Settings -> 📥, owner only)
+   - Paste text, upload TXT / HTML / DOCX / PDF, or fetch a web page URL.
+     (DOCX/PDF readers load on demand from cdnjs — mammoth and pdf.js.)
+   - The app detects the title, splits sections into topics, finds Bible
+     references (English and Spanish), and detects the language.
+   - A preview shows everything found; "💾 Save as Draft" stores it in
+     Firestore (studies/custom-... + a shared catalog in branding/catalog).
+   - Drafts are visible ONLY to the owner (yellow DRAFT badge, Drafts filter).
+   - Open a draft -> ✎ Edit Study now has Status (Draft/Published), Study
+     language (EN/ES), and 🗑 Delete Study (custom studies only). Publishing
+     makes it appear to readers you grant access to, like any other study.
+   - Web-page import: many sites block direct download (CORS). The app says so
+     honestly and suggests copy/paste instead.
+
+2. LIBRARY FILTERS & FAVORITES
+   - Filter chips above Featured Studies: All | English | Español | ★ Favorites
+     (+ Drafts for the owner).
+   - Every card has a ☆ star — favorites are saved to your account (Firestore
+     progress doc) and follow you across devices.
+
+3. PERFORMANCE & DIAGNOSTICS (Settings -> 🩺, owner only)
+   - Real checks: network, service worker, app cache version, device storage
+     used, Firestore offline cache, Bible cache, photo sizes (warns on large
+     banners/hero), study counts, and JavaScript errors collected this session.
+   - Safe one-click fixes: clear app cache & update; clear Bible device cache.
+   - No fake diagnostics — every row is a real measurement.
+
+4. STUDY BUILDER HELPERS
+   - The topic editor's Additional Section now has a picker of ready-made
+     bilingual section titles (Historical Context, Denominational Comparison,
+     Seventh-day Adventist Interpretation, Objections, Study Questions,
+     Sources, ...).
+
+Cache/assets bumped to v29 (sw now precaches js/importer.js). No new Firestore rules needed.

@@ -10,7 +10,7 @@
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js">
-<link rel="stylesheet" href="css/app.css?v=27"><title>Bible Study Library</title>
+<link rel="stylesheet" href="css/app.css?v=29"><title>Bible Study Library</title>
 <style id="v16ButtonFix">
   .topicActions{
     grid-column:1 / -1 !important;
@@ -99,6 +99,7 @@
 <button id="menuBtn" class="mobileMenu">☰</button>
 <div class="brand"><span class="book">📖</span><div><strong id="brandTitle">Bible Study Library</strong><small>INTERACTIVE BIBLE STUDIES</small></div></div>
 <div class="scriptureHeader">“Search the Scriptures... they are they which testify of Me.”<br><small>John 5:39</small></div>
+<select id="langSel" class="langSel" aria-label="Language"><option value="en">EN</option><option value="es">ES</option></select>
 <div class="topButtons"><button id="homeBtn" class="active">⌂<span>Home</span></button><button id="aboutBtn">●<span>About</span></button><button id="settingsBtn">⚙<span>Settings</span></button><button id="signOutBtn">⇥<span>Sign Out</span></button></div>
 </header>
 
@@ -119,6 +120,7 @@
 <div class="heroBook">📖</div>
 </div>
 <div class="featureHeader"><h2>★ Featured Studies</h2><button id="viewAllBtn">▦ View All Studies →</button></div>
+<div id="libFilters" class="libFilters"></div>
 <div id="featuredStudies" class="featuredStudies"></div>
 <div class="libraryBottom">
 <article><h2>📖 About This Library</h2><p>This library provides interactive Bible studies to help you explore important topics, compare interpretations, and study the Scriptures for yourself. Each study includes a complete index, key verses, detailed explanations, and side-by-side comparisons.</p></article>
@@ -205,6 +207,21 @@
       <label class="wide">Description<textarea id="editStudyDescription" rows="4"></textarea></label>
       <label class="wide">Owner/source note<textarea id="editStudyOwnerNote" rows="4"></textarea></label>
       <label class="wide">YouTube videos <small>One YouTube link per line — shown at the top of this study</small><textarea id="editStudyVideos" rows="3" placeholder="https://www.youtube.com/watch?v=..."></textarea></label>
+      <div id="customStudyRow" class="editorToolbar wide" hidden>
+        <label>Status
+          <select id="editStudyStatus">
+            <option value="draft">Draft (only you see it)</option>
+            <option value="published">Published (visible to allowed readers)</option>
+          </select>
+        </label>
+        <label>Study language
+          <select id="editStudyLang">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+          </select>
+        </label>
+        <button type="button" id="deleteStudyBtn" class="dangerBtn">🗑 Delete Study</button>
+      </div>
     </div>
     <div class="editorActions">
       <button id="saveStudyEdit" class="primarySettingBtn">Save Study</button>
@@ -283,6 +300,26 @@
 
       <fieldset class="wide editorFieldset">
         <legend>Additional Section</legend>
+        <label>Insert a ready-made section title
+          <select id="sectionTemplate">
+            <option value="">— choose —</option>
+            <option>Introduction / Introducción</option>
+            <option>Main Question / Pregunta Principal</option>
+            <option>Bible Passages / Pasajes Bíblicos</option>
+            <option>What Does the Text Say? / ¿Qué Dice el Texto?</option>
+            <option>Historical Context / Contexto Histórico</option>
+            <option>Common Christian Interpretation / Interpretación Cristiana Común</option>
+            <option>Denominational Comparison / Comparación Denominacional</option>
+            <option>Seventh-day Adventist Interpretation / Interpretación Adventista</option>
+            <option>Supporting Verses / Versículos de Apoyo</option>
+            <option>Alternative Interpretations / Interpretaciones Alternativas</option>
+            <option>Objections / Objeciones</option>
+            <option>Study Questions / Preguntas de Estudio</option>
+            <option>Summary / Resumen</option>
+            <option>Conclusion / Conclusión</option>
+            <option>Sources / Fuentes</option>
+          </select>
+        </label>
         <label>Section title<input id="editExtraTitle" type="text" placeholder="Historical Background"></label>
         <label>Section content<textarea id="editExtraContent" rows="6"></textarea></label>
         <button id="addExtraSectionBtn" type="button">＋ Add Section</button>
@@ -437,7 +474,81 @@
       <label class="switchRow"><input id="settingSidebar" type="checkbox"> Show sidebar on large screens</label>
       <label class="switchRow"><input id="settingQuotes" type="checkbox"> Show Scripture quote areas</label>
       <label class="switchRow"><input id="settingAnimations" type="checkbox"> Use subtle animations</label>
+      <label>Language
+        <select id="langSelSettings">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+        </select>
+      </label>
       <p class="smallHelp">These appearance choices are saved on the current device. Each reader may have their own appearance preferences.</p>
+    </section>
+
+    <section class="settingsSection" id="panelSection">
+      <h3>🪟 Floating Windows</h3>
+      <div class="colorGrid">
+        <label>Background <input id="settingPanelBg" type="color"></label>
+        <label>Header <input id="settingPanelHead" type="color"></label>
+        <label>Text <input id="settingPanelText" type="color"></label>
+        <label>Border <input id="settingPanelBorder" type="color"></label>
+      </div>
+      <label>Border thickness
+        <div class="rangeRow"><input id="settingPanelBw" type="range" min="0" max="6" step="1" value="1"><output id="panelBwOut">1px</output></div>
+      </label>
+      <label>Corner roundness
+        <div class="rangeRow"><input id="settingPanelRadius" type="range" min="0" max="28" step="2" value="16"><output id="panelRadiusOut">16px</output></div>
+      </label>
+      <label>Opacity
+        <div class="rangeRow"><input id="settingPanelOpacity" type="range" min="60" max="100" step="5" value="100"><output id="panelOpacityOut">100%</output></div>
+      </label>
+      <label>Font size
+        <div class="rangeRow"><input id="settingPanelFs" type="range" min="80" max="125" step="5" value="100"><output id="panelFsOut">100%</output></div>
+      </label>
+    </section>
+
+    <section class="settingsSection adminSection" id="importSection" hidden>
+      <div class="adminTitleRow">
+        <div>
+          <h3>📥 Import a Bible Study</h3>
+          <p class="smallHelp">Paste text or upload a TXT, HTML, DOCX, or PDF file. The app detects the title, sections, Bible references, and language, then saves it as a DRAFT you can edit and publish.</p>
+        </div>
+        <span class="adminBadge">OWNER ONLY</span>
+      </div>
+      <label>Paste the study text
+        <textarea id="importPaste" rows="6" placeholder="Paste a complete Bible study here..."></textarea>
+      </label>
+      <button type="button" id="analyzeImport" class="primarySettingBtn">🔎 Analyze</button>
+      <label>Or choose a file (TXT, HTML, DOCX, PDF)
+        <input id="importFile" type="file" accept=".txt,.md,.html,.htm,.docx,.pdf">
+      </label>
+      <label>Or import from a web page
+        <input id="importUrl" type="url" placeholder="https://...">
+      </label>
+      <button type="button" id="importUrlBtn" class="secondarySettingBtn">Fetch page</button>
+      <div id="importStatus" class="smallHelp" aria-live="polite"></div>
+    </section>
+
+    <section class="settingsSection adminSection" id="diagSection" hidden>
+      <div class="adminTitleRow">
+        <div>
+          <h3>🩺 Performance &amp; Diagnostics</h3>
+          <p class="smallHelp">Real checks on caching, storage, photo sizes, and errors — with one-click safe fixes.</p>
+        </div>
+        <span class="adminBadge">OWNER ONLY</span>
+      </div>
+      <button type="button" id="runDiagBtn" class="primarySettingBtn">▶ Run diagnostics</button>
+      <div id="diagResults" class="diagResults"></div>
+    </section>
+
+    <section class="settingsSection adminSection" id="navSection" hidden>
+      <div class="adminTitleRow">
+        <div>
+          <h3>🧭 Navigation Links</h3>
+          <p class="smallHelp">Owner only — add your own entries to the left menu: open a study, a floating window, or any web link. Saved to Firestore for all readers with Save Settings.</p>
+        </div>
+        <span class="adminBadge">OWNER ONLY</span>
+      </div>
+      <div id="navLinksList" class="navLinksList"></div>
+      <button type="button" id="addNavLink" class="secondarySettingBtn">＋ Add link</button>
     </section>
 
     <section class="settingsSection" id="studyBannerSection">
@@ -562,5 +673,5 @@
 })();
 </script>
 
-<script type="module" src="js/app.js?v=27"></script>
+<script type="module" src="js/app.js?v=29"></script>
 </body></html>

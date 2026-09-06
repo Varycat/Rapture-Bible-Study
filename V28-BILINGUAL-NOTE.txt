@@ -1,0 +1,23 @@
+V28: English/Español interface, floating-window theming, custom navigation links.
+
+1. BILINGUAL INTERFACE (EN | ES)
+   - Language selector in the top bar (EN/ES) and in Settings -> Layout & Display.
+   - The choice is remembered on the device (survives refresh and reopening).
+   - Translates: sign-in screen, top bar, sidebar, home page, study/topic
+     buttons, the three interpretation cards, dialogs, Notes/Search/Bible
+     floating windows, and the Settings window (sections, labels, buttons).
+   - Study CONTENT (titles, teachings, verses) stays as authored by the owner —
+     per-study translations are a future step.
+
+2. FLOATING WINDOWS (Settings -> 🪟 Floating Windows)
+   - Background, header, text, and border colors; border thickness; corner
+     roundness; opacity (with blur); font size. Applies to Notes, Search, and
+     Bible panels. Per-device like other appearance settings.
+
+3. NAVIGATION LINKS (Settings -> 🧭 Navigation Links, owner only)
+   - Add your own entries to the left menu: icon (emoji or image link), label,
+     and what it opens — a study, a floating window, or any web link.
+   - Duplicate, delete, reorder (up/down). Saved to Firestore with Save
+     Settings, so every reader sees them.
+
+Cache/assets bumped to v28. No new Firestore rules needed.
