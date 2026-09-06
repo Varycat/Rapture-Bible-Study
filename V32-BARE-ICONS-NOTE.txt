@@ -1,0 +1,6 @@
+V32 removes the square box behind every icon.
+- Sidebar study/topic lists, topic cards, and study card banners now show the
+  bare icon with no rounded-square background, border, or shadow behind it.
+- Sizes and alignment unchanged; uploaded transparent PNG/SVG/WebP icons show
+  exactly as-is.
+- Cache/assets bumped to v32.

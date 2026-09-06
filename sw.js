@@ -1,5 +1,5 @@
 
-const C='bible-study-library-v31';
+const C='bible-study-library-v32';
 const CORE=['./','index.html','css/app.css','js/app.js','js/importer.js','js/firebase-config.js','data/studies.json','manifest.webmanifest','icons/icon-180.png','icons/icon-192.png','icons/icon-512.png'];
 
 self.addEventListener('install',e=>{
