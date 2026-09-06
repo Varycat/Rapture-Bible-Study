@@ -1,0 +1,8 @@
+V30 fixes the favorite star on study cards.
+- The star is no longer a full-width bar covering the banner image. It is now a
+  small round gold icon placed directly after the study title, e.g.:
+  "The Rapture of the Church ☆"
+- Still clickable to mark/unmark a favorite (★/☆), saved to your account.
+- Works identically in the English and Spanish interfaces, on every card,
+  and no longer collides with the floating tool buttons on narrow screens.
+- Cache/assets bumped to v30.

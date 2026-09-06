@@ -559,3 +559,19 @@ dialog::-webkit-scrollbar{width:0;height:0;display:none}
 #customStudyRow{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
 #customStudyRow label{display:grid;gap:5px;font-weight:800}
 #customStudyRow select{min-height:42px;border:1px solid var(--line,#dce6f2);border-radius:9px;padding:6px 10px;font:inherit;background:var(--app-card,#fff);color:inherit}
+
+/* ---------- v30 Favorite star: small icon beside the study title ---------- */
+.titleRow{display:flex;align-items:center;justify-content:flex-start;gap:6px}
+.titleRow h3.thumbTitle{flex:0 1 auto;min-width:0}
+.studyCard .titleRow button.favBtn{
+  position:static !important;
+  flex:0 0 auto;
+  width:34px !important;height:34px !important;min-height:0 !important;
+  padding:0 !important;margin:2px 0 0 !important;
+  border:0 !important;border-radius:50% !important;
+  background:transparent !important;
+  color:#c9a227 !important;
+  font-size:22px !important;line-height:1 !important;
+  cursor:pointer;
+}
+.studyCard .titleRow button.favBtn:hover{background:rgba(201,162,39,.12) !important}
