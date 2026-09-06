@@ -10,7 +10,7 @@
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js">
-<link rel="stylesheet" href="css/app.css?v=32"><title>Bible Study Library</title>
+<link rel="stylesheet" href="css/app.css?v=33"><title>Bible Study Library</title>
 <style id="v16ButtonFix">
   .topicActions{
     grid-column:1 / -1 !important;
@@ -240,6 +240,7 @@
       <label>Subtitle<input id="editTopicSubtitle" type="text"></label>
       <label>Topic icon<input id="editTopicIcon" type="text" placeholder="📖 emoji or image link"></label>
       <label>Or upload an icon file (PNG, SVG, WebP — transparent backgrounds work)<input id="editTopicIconFile" type="file" accept="image/*"></label>
+      <label><button type="button" id="clearTopicIcon" class="secondarySettingBtn">✕ Remove icon</button></label>
       <label class="wide">Bible references <small>Separate with commas</small><input id="editTopicVerses" type="text"></label>
       <label class="wide">Topic YouTube videos <small>One YouTube link per line — shown at the top of this topic</small><textarea id="editTopicVideos" rows="2" placeholder="https://www.youtube.com/watch?v=..."></textarea></label>
 
@@ -675,5 +676,5 @@
 })();
 </script>
 
-<script type="module" src="js/app.js?v=32"></script>
+<script type="module" src="js/app.js?v=33"></script>
 </body></html>

@@ -1,0 +1,8 @@
+V33 adds one-click icon removal.
+- Settings -> 🖼 Study Banners & Icons: every study row now has a red ✕ button
+  that removes its custom icon instantly (the study returns to its original
+  emoji). Save Settings publishes the change.
+- ✎ Edit Topic: a "✕ Remove icon" button clears the topic's icon (back to 📖)
+  when you Save Topic.
+- Both translated (✕ Quitar icono in Spanish).
+- Cache/assets bumped to v33.

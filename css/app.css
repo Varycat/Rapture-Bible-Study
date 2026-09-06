@@ -590,3 +590,6 @@ dialog::-webkit-scrollbar{width:0;height:0;display:none}
 .thumbIcon{background:transparent !important;box-shadow:none !important}
 .navIcon img.iconImg,.topicCardIcon img.iconImg{width:100%;height:100%}
 .thumbIcon img.iconImg{width:100%;height:100%}
+
+/* ---------- v33 Remove-icon buttons ---------- */
+.iconClearBtn{border:1px solid #e4aaa2;background:#fff3f1;color:#a33326;border-radius:9px;padding:8px 12px;font-weight:800;cursor:pointer}

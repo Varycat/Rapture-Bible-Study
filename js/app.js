@@ -111,7 +111,7 @@ en:{
  runDiag:'▶ Run diagnostics',diagFixCache:'🧹 Clear app cache & update',diagFixBible:'🧹 Clear Bible device cache',
  sectionTplL:'Insert a ready-made section title',
  favAdd:'Add to favorites',favDel:'Remove from favorites',
- topicIconL:'Topic icon',iconFileL:'Or upload an icon file (PNG, SVG, WebP — transparent backgrounds work)'
+ topicIconL:'Topic icon',iconFileL:'Or upload an icon file (PNG, SVG, WebP — transparent backgrounds work)',removeIcon:'✕ Remove icon'
 },
 es:{
  home:'Inicio',about:'Acerca',settings:'Ajustes',signOut:'Salir',
@@ -182,7 +182,7 @@ es:{
  runDiag:'▶ Ejecutar diagnóstico',diagFixCache:'🧹 Limpiar caché y actualizar',diagFixBible:'🧹 Limpiar caché de Biblia del dispositivo',
  sectionTplL:'Insertar un título de sección predefinido',
  favAdd:'Añadir a favoritos',favDel:'Quitar de favoritos',
- topicIconL:'Icono del tema',iconFileL:'O sube un archivo de icono (PNG, SVG, WebP — fondos transparentes funcionan)'
+ topicIconL:'Icono del tema',iconFileL:'O sube un archivo de icono (PNG, SVG, WebP — fondos transparentes funcionan)',removeIcon:'✕ Quitar icono'
 }
 };
 function t(k){return (I18N[lang]&&I18N[lang][k])??I18N.en[k]??k}
@@ -211,7 +211,7 @@ const I18N_MAP=[
  ['label:has(#importPaste)','pasteL','label'],['label:has(#importFile)','importFileL','label'],['label:has(#importUrl)','importUrlL','label'],
  ['#analyzeImport','analyzeBtn'],['#importUrlBtn','importUrlBtn'],['#runDiagBtn','runDiag'],
  ['label:has(#editStudyStatus)','statusL','label'],['label:has(#editStudyLang)','languageStudyL','label'],['#deleteStudyBtn','deleteStudy'],
- ['label:has(#sectionTemplate)','sectionTplL','label'],['label:has(#editTopicIcon)','topicIconL','label'],['label:has(#editTopicIconFile)','iconFileL','label'],
+ ['label:has(#sectionTemplate)','sectionTplL','label'],['label:has(#editTopicIcon)','topicIconL','label'],['label:has(#editTopicIconFile)','iconFileL','label'],['#clearTopicIcon','removeIcon'],
  ['#saveSettings','saveSettings'],['#resetSettings','resetAppearance'],
  ['label:has(#settingTitle)','appTitle','label'],['label:has(#settingSubtitle)','subtitleL','label'],
  ['label:has(#settingHeroTitle)','heroTitleL','label'],['label:has(#settingHeroTagline)','heroTagL','label'],
@@ -352,10 +352,16 @@ function fillSettings(){
   const bw=$('#studyBannerSettings');
   if(bw){
     const list=visibleStudies();
-    bw.innerHTML=list.length?list.map(st=>`<div class="bannerRow"><b>${iconHTML(st.id,st.icon)} ${esc(st.title)}</b><div class="iconRow"><label>Icon <input type="text" data-banner-icon="${st.id}" value="${String(iconsDraft[st.id]||st.icon||'').startsWith('data:')?'':esc(iconsDraft[st.id]||st.icon||'')}" placeholder="📖 emoji or image link"></label><label class="bannerUpload">⬆ Icon file<input type="file" accept="image/*" data-icon-file="${st.id}" hidden></label></div><input type="url" placeholder="https://... photo link" data-banner-url="${st.id}" value="${bannersDraft[st.id]&&!String(bannersDraft[st.id]).startsWith('data:')?esc(bannersDraft[st.id]):''}"><div class="bannerRowBtns"><label class="bannerUpload">⬆ Upload<input type="file" accept="image/*" data-banner-file="${st.id}" hidden></label><button type="button" data-banner-clear="${st.id}">Remove</button></div></div>`).join(''):'<p class="smallHelp">No studies are visible yet.</p>';
+    bw.innerHTML=list.length?list.map(st=>`<div class="bannerRow"><b>${iconHTML(st.id,st.icon)} ${esc(st.title)}</b><div class="iconRow"><label>Icon <input type="text" data-banner-icon="${st.id}" value="${String(iconsDraft[st.id]||st.icon||'').startsWith('data:')?'':esc(iconsDraft[st.id]||st.icon||'')}" placeholder="📖 emoji or image link"></label><label class="bannerUpload">⬆ Icon file<input type="file" accept="image/*" data-icon-file="${st.id}" hidden></label><button type="button" class="iconClearBtn" data-icon-clear="${st.id}" title="${t('removeIcon')}">✕</button></div><input type="url" placeholder="https://... photo link" data-banner-url="${st.id}" value="${bannersDraft[st.id]&&!String(bannersDraft[st.id]).startsWith('data:')?esc(bannersDraft[st.id]):''}"><div class="bannerRowBtns"><label class="bannerUpload">⬆ Upload<input type="file" accept="image/*" data-banner-file="${st.id}" hidden></label><button type="button" data-banner-clear="${st.id}">Remove</button></div></div>`).join(''):'<p class="smallHelp">No studies are visible yet.</p>';
     $$('[data-banner-icon]').forEach(i=>i.addEventListener('input',()=>{
       const v=i.value.trim(),id=i.dataset.bannerIcon,cat=studies.find(x=>x.id===id);
       if(v&&v!==(cat?.icon||''))iconsDraft[id]=v;else delete iconsDraft[id];
+      applySettings(readSettings());
+    }));
+    $$('[data-icon-clear]').forEach(b=>b.addEventListener('click',()=>{
+      delete iconsDraft[b.dataset.iconClear];
+      const u=bw.querySelector(`[data-banner-icon="${b.dataset.iconClear}"]`);if(u)u.value='';
+      const f=bw.querySelector(`[data-icon-file="${b.dataset.iconClear}"]`);if(f)f.value='';
       applySettings(readSettings());
     }));
     $$('[data-icon-file]').forEach(f=>f.addEventListener('change',async()=>{
@@ -1536,6 +1542,7 @@ function bind(){
   on('#runDiagBtn','click',()=>runDiagnostics());
   on('#deleteStudyBtn','click',()=>deleteCustomStudy().catch(e=>openDialog('Delete',`<p>${esc(e.message)}</p>`)));
   on('#editTopicIcon','input',e=>{topicIconDraft=e.target.value.trim()});
+  on('#clearTopicIcon','click',()=>{topicIconDraft='';$('#editTopicIcon').value='';$('#editTopicIconFile').value=''});
   on('#editTopicIconFile','change',async e=>{
     try{
       const d=await fileToCompressedDataURL(e.target.files[0],128,18000,30000);
