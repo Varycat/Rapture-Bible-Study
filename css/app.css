@@ -492,3 +492,28 @@ body.card-rounded{--app-radius:18px}
 @media(max-width:760px){.hero{height:auto;min-height:190px}}
 .iconRow label{display:flex!important;align-items:center;gap:8px;font-weight:800;font-size:14px}
 .iconRow input{width:74px;min-height:38px;border:1px solid var(--line,#dce6f2);border-radius:9px;text-align:center;font-size:20px;background:var(--app-card,#fff)}
+
+/* ---------- v27 Rounded dialogs, mini hero preview, image icons ---------- */
+/* Settings & editor windows: fully rounded corners, internal scroll, no visible scrollbar */
+.settingsDialog,.editorDialog{overflow:hidden;border-radius:22px}
+.settingsDialog[open],.editorDialog[open]{display:flex;flex-direction:column}
+.settingsGrid,.editorBody{flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none}
+.settingsGrid::-webkit-scrollbar,.editorBody::-webkit-scrollbar{width:0;height:0;display:none}
+dialog{scrollbar-width:none}
+dialog::-webkit-scrollbar{width:0;height:0;display:none}
+
+/* Live hero preview inside the settings window */
+.heroMini{position:relative;height:120px;border-radius:14px;overflow:hidden;border:1px solid var(--line,#dce6f2);
+  background:linear-gradient(135deg,#b7d3f3,#dceafb 40%,#f3ddc4 68%,#c8d9f0)}
+.heroMiniPhoto{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;background-position:center}
+.heroMiniOverlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(246,250,255,.9) 0%,rgba(246,250,255,.55) 45%,rgba(246,250,255,0) 78%)}
+.heroMiniCopy{position:absolute;left:14px;top:14px;z-index:2}
+.heroMiniCopy b{display:block;font-size:20px;color:#082068;line-height:1.1}
+.heroMiniCopy small{display:block;font-size:12px;font-weight:800;color:#243a6b;margin-top:4px}
+
+/* Icons can be images (uploaded or from a link) */
+.thumbIcon img.iconImg,.navIcon img.iconImg{width:76%;height:76%;object-fit:contain;border-radius:6px}
+.bannerRow b img.iconImg{width:20px;height:20px;object-fit:contain;vertical-align:-4px;border-radius:4px}
+.iconRow{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+.iconRow label:first-child{flex:1;min-width:170px}
+.iconRow input[type="text"]{width:100%;text-align:left;font-size:15px}

@@ -1,0 +1,30 @@
+V27: custom icons, polished settings window, in-window hero preview, and speed.
+
+1. Custom icons (Settings -> Study Banners & Icons, owner only):
+   - The Icon box now accepts an emoji OR a pasted image link from the web.
+   - New "⬆ Icon file" button uploads your own icon image from the device
+     (resized to 128px and compressed automatically).
+   - Image icons appear on the study cards, the sidebar, and the settings list.
+   - Saved to Firestore with Save Settings; readers see them everywhere.
+
+2. Settings & editor windows: fully rounded corners (22px) with the content
+   scrolling inside the window — scroll bars are hidden on all browsers.
+
+3. Live hero preview inside Settings: the hero photo controls now start with a
+   mini version of the main title banner that updates instantly as you change
+   the photo, position, zoom, colors, and hero title/tagline — no need to leave
+   the window (the full-size 👁 Preview button still works too).
+
+4. Performance:
+   - Firestore now uses a persistent on-device cache (IndexedDB): studies,
+     topics, verses, permissions, photos, and Bibles are served from the local
+     cache after the first load and sync in the background. Repeat visits and
+     study opens are dramatically faster, and reads to Firestore drop sharply.
+   - The service worker switched to stale-while-revalidate: pages, styles, and
+     scripts load instantly from the device and refresh silently in the
+     background. NOTE: after deploying a new version, users see it on their
+     SECOND refresh (the first one downloads it in the background).
+   - Added preconnect/modulepreload hints so Firebase connects while the page
+     is still loading.
+
+Cache/assets bumped to v27.

@@ -4,7 +4,13 @@
 <meta name="theme-color" content="#f8fbff"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Bible Studies">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png">
-<link rel="stylesheet" href="css/app.css?v=26"><title>Bible Study Library</title>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js">
+<link rel="stylesheet" href="css/app.css?v=27"><title>Bible Study Library</title>
 <style id="v16ButtonFix">
   .topicActions{
     grid-column:1 / -1 !important;
@@ -319,6 +325,11 @@
         <input id="settingFooter" type="text" maxlength="140" placeholder="Let the Bible speak...">
       </label>
       <div id="heroPhotoControls">
+        <div id="heroMiniPreview" class="heroMini">
+          <div id="heroMiniPhoto" class="heroMiniPhoto"></div>
+          <div class="heroMiniOverlay"></div>
+          <div class="heroMiniCopy"><b id="heroMiniTitle">Bible Study Library</b><small id="heroMiniTag">Explore. Compare. Discover. Grow.</small></div>
+        </div>
         <label>Hero background photo <small>Owner only — saved to Firestore, shown to every reader</small>
           <input id="settingHeroImage" type="url" placeholder="https://...">
         </label>
@@ -551,5 +562,5 @@
 })();
 </script>
 
-<script type="module" src="js/app.js?v=26"></script>
+<script type="module" src="js/app.js?v=27"></script>
 </body></html>

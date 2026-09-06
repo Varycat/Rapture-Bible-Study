@@ -1,5 +1,5 @@
 
-const C='bible-study-library-v26';
+const C='bible-study-library-v27';
 const CORE=['./','index.html','css/app.css','js/app.js','js/firebase-config.js','data/studies.json','manifest.webmanifest','icons/icon-180.png','icons/icon-192.png','icons/icon-512.png'];
 
 self.addEventListener('install',e=>{
@@ -15,46 +15,23 @@ self.addEventListener('activate',e=>{
   );
 });
 
+// Stale-while-revalidate for same-origin GETs: answer instantly from cache,
+// refresh the cache from the network in the background. Firestore/auth traffic
+// (cross-origin, often POST/streaming) is never intercepted.
 self.addEventListener('fetch',e=>{
   const u=new URL(e.request.url);
-
-  // Only handle same-origin GET requests. Firestore/auth traffic (cross-origin,
-  // often POST/streaming) must go straight to the network and is not cacheable.
   if(e.request.method!=='GET'||u.origin!==location.origin)return;
 
-  if(e.request.mode==='navigate'){
-    e.respondWith(
-      fetch(e.request,{cache:'no-store'})
-        .then(r=>{
-          const copy=r.clone();
-          caches.open(C).then(c=>c.put('index.html',copy));
-          return r;
-        })
-        .catch(()=>caches.match('index.html'))
-    );
-    return;
-  }
-
-  if(u.pathname.endsWith('/css/app.css') || u.pathname.endsWith('/js/app.js') || u.pathname.endsWith('/js/firebase-config.js')){
-    e.respondWith(
-      fetch(e.request,{cache:'no-store'})
-        .then(r=>{
-          const copy=r.clone();
-          caches.open(C).then(c=>c.put(e.request,copy));
-          return r;
-        })
-        .catch(()=>caches.match(e.request))
-    );
-    return;
-  }
-
+  const key=e.request.mode==='navigate'?'index.html':e.request;
   e.respondWith(
-    fetch(e.request)
-      .then(r=>{
-        const copy=r.clone();
-        caches.open(C).then(c=>c.put(e.request,copy));
-        return r;
-      })
-      .catch(()=>caches.match(e.request))
+    caches.match(key).then(cached=>{
+      const fresh=fetch(e.request)
+        .then(r=>{
+          if(r&&r.ok){const copy=r.clone();caches.open(C).then(c=>c.put(key,copy))}
+          return r;
+        })
+        .catch(()=>null);
+      return cached||fresh.then(r=>r||caches.match('index.html'));
+    })
   );
 });

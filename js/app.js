@@ -4,12 +4,15 @@ import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut
 } from 'https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js';
 import {
-  getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, writeBatch
+  getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+  doc, getDoc, setDoc, deleteDoc, collection, getDocs, writeBatch
 } from 'https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js';
 
 const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
-const db=getFirestore(app);
+let db;
+try{db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})})}
+catch{db=getFirestore(app)}
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 let user=null, owner=false, studies=[], allowedStudies=[], currentStudy=null, topics=[], verses={}, currentTopic=0;
@@ -56,6 +59,8 @@ function applySettings(s){
   const heroTitle=$('#heroTitle'); if(heroTitle)heroTitle.textContent=s.heroTitle||s.title;
   const heroTagline=$('#heroTagline'); if(heroTagline)heroTagline.textContent=s.heroTagline;
   $$('.footerMessage').forEach(x=>x.textContent=s.footer);
+  const mt=$('#heroMiniTitle');if(mt)mt.textContent=s.heroTitle||s.title;
+  const mg=$('#heroMiniTag');if(mg)mg.textContent=s.heroTagline;
   applyPhotos();
   if(studies.length&&!$('#libraryView').hidden){renderLibrary();if(!currentStudy)renderSidebar($('#search')?.value||'')}
   document.title=s.title;
@@ -64,6 +69,10 @@ let heroImageValue=null, bannersDraft=null;
 let branding={hero:'',heroAdj:null,banners:{},icons:{}};
 let iconsDraft=null;
 function effIcons(){return iconsDraft===null?branding.icons:iconsDraft}
+function iconHTML(id,fallback){
+  const v=effIcons()[id]||fallback||'📖';
+  return (String(v).startsWith('data:')||String(v).startsWith('http'))?`<img class="iconImg" src="${v}" alt="" loading="lazy">`:v;
+}
 const DEFAULT_ADJ={posX:50,posY:50,zoom:100,bright:100,contrast:100,sat:100};
 let heroAdjDraft=null;
 function effHeroAdj(){return {...DEFAULT_ADJ,...(heroAdjDraft||branding.heroAdj||{})}}
@@ -89,11 +98,21 @@ function fillSettings(){
   const bw=$('#studyBannerSettings');
   if(bw){
     const list=visibleStudies();
-    bw.innerHTML=list.length?list.map(st=>`<div class="bannerRow"><b>${effIcons()[st.id]||st.icon||'📖'} ${esc(st.title)}</b><div class="iconRow"><label>Icon <input type="text" maxlength="4" data-banner-icon="${st.id}" value="${esc(iconsDraft[st.id]||st.icon||'')}" placeholder="📖"></label></div><input type="url" placeholder="https://... photo link" data-banner-url="${st.id}" value="${bannersDraft[st.id]&&!String(bannersDraft[st.id]).startsWith('data:')?esc(bannersDraft[st.id]):''}"><div class="bannerRowBtns"><label class="bannerUpload">⬆ Upload<input type="file" accept="image/*" data-banner-file="${st.id}" hidden></label><button type="button" data-banner-clear="${st.id}">Remove</button></div></div>`).join(''):'<p class="smallHelp">No studies are visible yet.</p>';
+    bw.innerHTML=list.length?list.map(st=>`<div class="bannerRow"><b>${iconHTML(st.id,st.icon)} ${esc(st.title)}</b><div class="iconRow"><label>Icon <input type="text" data-banner-icon="${st.id}" value="${String(iconsDraft[st.id]||st.icon||'').startsWith('data:')?'':esc(iconsDraft[st.id]||st.icon||'')}" placeholder="📖 emoji or image link"></label><label class="bannerUpload">⬆ Icon file<input type="file" accept="image/*" data-icon-file="${st.id}" hidden></label></div><input type="url" placeholder="https://... photo link" data-banner-url="${st.id}" value="${bannersDraft[st.id]&&!String(bannersDraft[st.id]).startsWith('data:')?esc(bannersDraft[st.id]):''}"><div class="bannerRowBtns"><label class="bannerUpload">⬆ Upload<input type="file" accept="image/*" data-banner-file="${st.id}" hidden></label><button type="button" data-banner-clear="${st.id}">Remove</button></div></div>`).join(''):'<p class="smallHelp">No studies are visible yet.</p>';
     $$('[data-banner-icon]').forEach(i=>i.addEventListener('input',()=>{
       const v=i.value.trim(),id=i.dataset.bannerIcon,cat=studies.find(x=>x.id===id);
       if(v&&v!==(cat?.icon||''))iconsDraft[id]=v;else delete iconsDraft[id];
       applySettings(readSettings());
+    }));
+    $$('[data-icon-file]').forEach(f=>f.addEventListener('change',async()=>{
+      try{
+        const d=await fileToCompressedDataURL(f.files[0],128,18000,30000);
+        if(d){
+          iconsDraft[f.dataset.iconFile]=d;
+          const t=bw.querySelector(`[data-banner-icon="${f.dataset.iconFile}"]`);if(t)t.value='';
+          applySettings(readSettings());
+        }
+      }catch(e){openDialog('Study Icon',`<p>${e.message}</p>`)}
     }));
     $$('[data-banner-url]').forEach(i=>i.addEventListener('input',()=>{const v=i.value.trim();if(v)bannersDraft[i.dataset.bannerUrl]=v;else delete bannersDraft[i.dataset.bannerUrl];applySettings(readSettings())}));
     $$('[data-banner-file]').forEach(f=>f.addEventListener('change',async()=>{
@@ -211,7 +230,7 @@ function closeSide(){$('#sidebar').classList.remove('open')}
 function visibleStudies(){return owner?studies:studies.filter(s=>allowedStudies.includes(s.id))}
 function renderLibrary(){
   const list=visibleStudies();
-  $('#featuredStudies').innerHTML=list.length?list.map((s,i)=>`<article class="studyCard ${i===0?'primary':''}"><div class="studyThumb${effBanners()[s.id]?' hasPhoto':''}"${effBanners()[s.id]?` style="--card-photo:url('${effBanners()[s.id]}')"`:''}><span class="thumbIcon">${effIcons()[s.id]||s.icon||'📖'}</span></div><div class="cardBody"><h3 class="thumbTitle">${s.title}</h3><div class="sub">${s.subtitle||''}</div><p>${s.description||''}</p><button data-study="${s.id}">Open Study →</button></div></article>`).join(''):'<article class="studyCard"><div class="cardBody"><h3>No studies unlocked yet</h3><p>Ask the owner to give you access to your first study.</p></div></article>';
+  $('#featuredStudies').innerHTML=list.length?list.map((s,i)=>`<article class="studyCard ${i===0?'primary':''}"><div class="studyThumb${effBanners()[s.id]?' hasPhoto':''}"${effBanners()[s.id]?` style="--card-photo:url('${effBanners()[s.id]}')"`:''}><span class="thumbIcon">${iconHTML(s.id,s.icon)}</span></div><div class="cardBody"><h3 class="thumbTitle">${s.title}</h3><div class="sub">${s.subtitle||''}</div><p>${s.description||''}</p><button data-study="${s.id}">Open Study →</button></div></article>`).join(''):'<article class="studyCard"><div class="cardBody"><h3>No studies unlocked yet</h3><p>Ask the owner to give you access to your first study.</p></div></article>';
   $$('[data-study]').forEach(b=>b.onclick=()=>openStudy(b.dataset.study));
 }
 function renderSidebar(q=''){
@@ -219,7 +238,7 @@ function renderSidebar(q=''){
   $('#sideTitle').textContent='📖 Studies';
   $('#sideNav').innerHTML=
     `<button id="navAllStudies" class="navItem active"><span class="navIcon">▦</span><span class="navText">All Studies<small>Browse all Bible studies</small></span></button>`
-    +list.map(s=>`<button class="navItem" data-study="${s.id}"><span class="navIcon">${effIcons()[s.id]||s.icon||'📖'}</span><span class="navText">${s.title}<small>${s.subtitle||''}</small></span></button>`).join('');
+    +list.map(s=>`<button class="navItem" data-study="${s.id}"><span class="navIcon">${iconHTML(s.id,s.icon)}</span><span class="navText">${s.title}<small>${s.subtitle||''}</small></span></button>`).join('');
   $$('#sideNav [data-study]').forEach(b=>b.onclick=()=>openStudy(b.dataset.study));
   const all=$('#navAllStudies'); if(all)all.onclick=showLibrary;
 }
@@ -756,6 +775,18 @@ function effBanners(){return bannersDraft===null?branding.banners:bannersDraft}
 function applyPhotos(){
   const hero=document.querySelector('.hero');
   const h=heroImageValue===null?branding.hero:heroImageValue;
+  const mini=$('#heroMiniPhoto'),miniWrap=$('#heroMiniPreview');
+  if(mini&&miniWrap){
+    if(h){
+      const a=effHeroAdj();
+      miniWrap.classList.add('hasPhoto');
+      mini.style.backgroundImage=`url("${h}")`;
+      mini.style.backgroundPosition=`${a.posX}% ${a.posY}%`;
+      mini.style.transform=`scale(${(a.zoom||100)/100})`;
+      mini.style.transformOrigin=`${a.posX}% ${a.posY}%`;
+      mini.style.filter=`brightness(${(a.bright||100)/100}) contrast(${(a.contrast||100)/100}) saturate(${(a.sat||100)/100})`;
+    }else{miniWrap.classList.remove('hasPhoto');mini.style.backgroundImage=''}
+  }
   if(hero){
     if(h){
       const a=effHeroAdj();
