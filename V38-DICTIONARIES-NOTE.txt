@@ -1,0 +1,13 @@
+V38: Bible dictionaries (English & Spanish).
+- New floating 📕 Dictionary button: readers pick an installed dictionary and
+  look up any word; accent-insensitive search; printable results. The panel
+  defaults to the dictionary matching the current language.
+- Settings -> 📕 Bible Dictionaries (owner only): upload dictionaries as
+  JSON ({"term":"definition"} or a list of {term, definition}) or plain text
+  ("TERM: definition" lines; multi-line definitions supported). Choose the
+  name and language (English/Español) before uploading. Remove per dictionary.
+- Stored in Firestore (dictionaries/{id}/chunks) so all readers get them;
+  cached on-device after first load.
+REQUIRED: publish the updated firestore.rules in the Firebase console
+(adds the /dictionaries rules) — uploads are denied until you do.
+Cache/assets bumped to v38.

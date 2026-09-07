@@ -114,6 +114,12 @@ en:{
  runDiag:'▶ Run diagnostics',diagFixCache:'🧹 Clear app cache & update',diagFixBible:'🧹 Clear Bible device cache',
  sectionTplL:'Insert a ready-made section title',
  favAdd:'Add to favorites',favDel:'Remove from favorites',
+ dictT:'📕 Dictionary',secDict:'📕 Bible Dictionaries',noDicts:'No dictionaries installed yet',
+ noDictsMsg:'No dictionaries installed yet. The owner can upload them in Settings → 📕 Bible Dictionaries.',
+ chooseDict:'Choose a dictionary above.',dictHint:'Type a word to look it up',entriesWord:'entries',
+ dictSearchPh:'Look up a word (e.g. Sabbath, covenant)...',dictNameL:'Dictionary name',dictLangL:'Dictionary language',
+ dictFileL:'Upload dictionary file (JSON or TXT)',reading:'Reading',dictParseFail:'Could not find dictionary entries in that file. Use JSON ({"term":"definition"} or a list) or text lines like "TERM: definition".',
+ dictRemoveConfirm:'Remove this dictionary for all readers?',
  topicIconL:'Topic icon',iconFileL:'Or upload an icon file (PNG, SVG, WebP — transparent backgrounds work)',removeIcon:'✕ Remove icon',
  translateStudyBtn:'🌐 Translate study + all topics (automatic)',translateNow:'🌐 Translate this study',translating:'Translating…',translateDone:'Translation saved. Switch the language selector to see it. Review the text and re-run after editing.',translateFail:'Translation service unavailable right now — try again in a minute.',mtNote:'Automatic machine translation by a free public service — review the result. Bible verses are NOT machine-translated: install a Spanish Bible (Reina Valera) in Settings → Bible Versions and verses display from it.'
 },
@@ -189,6 +195,12 @@ es:{
  runDiag:'▶ Ejecutar diagnóstico',diagFixCache:'🧹 Limpiar caché y actualizar',diagFixBible:'🧹 Limpiar caché de Biblia del dispositivo',
  sectionTplL:'Insertar un título de sección predefinido',
  favAdd:'Añadir a favoritos',favDel:'Quitar de favoritos',
+ dictT:'📕 Diccionario',secDict:'📕 Diccionarios Bíblicos',noDicts:'No hay diccionarios instalados',
+ noDictsMsg:'Aún no hay diccionarios instalados. El propietario puede subirlos en Ajustes → 📕 Diccionarios Bíblicos.',
+ chooseDict:'Elige un diccionario arriba.',dictHint:'Escribe una palabra para buscarla',entriesWord:'entradas',
+ dictSearchPh:'Busca una palabra (ej. Sábado, pacto)...',dictNameL:'Nombre del diccionario',dictLangL:'Idioma del diccionario',
+ dictFileL:'Subir archivo de diccionario (JSON o TXT)',reading:'Leyendo',dictParseFail:'No se encontraron entradas en ese archivo. Usa JSON ({"término":"definición"} o una lista) o líneas de texto como "TÉRMINO: definición".',
+ dictRemoveConfirm:'¿Eliminar este diccionario para todos los lectores?',
  topicIconL:'Icono del tema',iconFileL:'O sube un archivo de icono (PNG, SVG, WebP — fondos transparentes funcionan)',removeIcon:'✕ Quitar icono',
  translateStudyBtn:'🌐 Traducir estudio + todos los temas (automático)',translateNow:'🌐 Traducir este estudio',translating:'Traduciendo…',translateDone:'Traducción guardada. Cambia el selector de idioma para verla. Revisa el texto y vuelve a ejecutar si editas.',translateFail:'El servicio de traducción no está disponible ahora — intenta en un minuto.',mtNote:'Traducción automática mediante un servicio público gratuito — revisa el resultado. Los versículos NO se traducen automáticamente: instala una Biblia en español (Reina Valera) en Ajustes → Versiones de la Biblia y se mostrarán desde ella.'
 }
@@ -209,7 +221,8 @@ const I18N_MAP=[
  ['[data-action="preSupport"]','support','html'],['[data-action="sdaSupport"]','support','html'],
  ['#whatBible','whatBible','html'],['#keyObs','keyObs','html'],
  ['.takeaways h2','takeaways'],['.related h2','related'],
- ['#notesPanel h3','notesT'],['#searchPanel h3','searchT'],['#biblePanel h3','bibleT'],
+ ['#notesPanel h3','notesT'],['#searchPanel h3','searchT'],['#biblePanel h3','bibleT'],['#dictPanel h3','dictT'],['#dictSection h3','secDict'],
+ ['#dictSearch','dictSearchPh','ph'],['label:has(#dictName)','dictNameL','label'],['label:has(#dictLang)','dictLangL','label'],['label:has(#dictUpload)','dictFileL','label'],
  ['#notesText','notesPh','ph'],['#globalSearch','gSearchPh','ph'],['#bibleSearch','bibleSearchPh','ph'],
  ['.panelSelectRow','notesFor','label'],
  ['#settingsDialog .settingsEyebrow','setEyebrow'],['.settingsHead h2','setT'],['.settingsHead > div > p','setIntro'],
@@ -354,6 +367,8 @@ function fillSettings(){
   const ns=$('#navSection');if(ns)ns.hidden=!owner;
   const isec=$('#importSection');if(isec)isec.hidden=!owner;
   const dsec=$('#diagSection');if(dsec)dsec.hidden=!owner;
+  const dicSec=$('#dictSection');if(dicSec)dicSec.hidden=!owner;
+  renderDictAdmin();
   navDraft=effNavLinks().map(x=>({...x}));
   renderNavLinksEditor();
   heroAdjDraft={...effHeroAdj()};
@@ -1115,10 +1130,19 @@ function searchRun(q){
 
 /* ===== v20: Floating panels + printing ===== */
 function openPanel(id){
-  ['notesPanel','searchPanel','biblePanel'].forEach(p=>{const el=$('#'+p);if(el)el.hidden=(p!==id)});
+  ['notesPanel','searchPanel','biblePanel','dictPanel'].forEach(p=>{const el=$('#'+p);if(el)el.hidden=(p!==id)});
   if(id==='notesPanel')refreshNotesScope();
   if(id==='searchPanel')$('#globalSearch')?.focus();
   if(id==='biblePanel'&&!bibleData)renderBibleReader();
+  if(id==='dictPanel'){
+    if(!dictData){
+      const sel=$('#dictSel');
+      const pick=sel?.value||installedDicts.find(d=>d.lang===lang)?.id||installedDicts[0]?.id;
+      if(pick)loadDictionary(pick).catch(()=>renderDictResults(''));
+      else renderDictResults('');
+    }
+    $('#dictSearch')?.focus();
+  }
 }
 function togglePanel(id){const el=$('#'+id);if(!el)return;if(el.hidden)openPanel(id);else el.hidden=true}
 function printHTML(title,bodyHTML){
@@ -1571,6 +1595,123 @@ function autoTranslateKick(){
   autoTranslateCards().then(()=>autoTranslateOpenStudy()).catch(()=>{});
 }
 
+/* ===== v38: Bible dictionaries (English & Spanish), uploaded by the owner ===== */
+let installedDicts=[], dictData=null, dictId='';
+function parseDictionaryFile(text){
+  text=String(text).replace(/^﻿/,'');
+  let entries=[];
+  try{
+    const j=JSON.parse(text);
+    if(Array.isArray(j))entries=j.map(x=>[String(x.term||x.word||x.name||x.topic||''),String(x.definition||x.def||x.text||x.description||'')]);
+    else if(j&&typeof j==='object')entries=Object.entries(j).map(([k,v])=>[String(k),typeof v==='string'?v:String(v.definition||v.def||v.text||'')]);
+  }catch{
+    const lines=text.split(/\r?\n/);
+    let cur=null;
+    for(const l of lines){
+      const m=l.match(/^([A-ZÁÉÍÓÚÑ][\w'ÁÉÍÓÚÑáéíóúñ\- ()]{0,70})\s*[:—–]\s+(.+)$/);
+      if(m){if(cur)entries.push(cur);cur=[m[1].trim(),m[2].trim()]}
+      else if(cur&&l.trim())cur[1]+=' '+l.trim();
+      else if(cur&&!l.trim()){entries.push(cur);cur=null}
+    }
+    if(cur)entries.push(cur);
+  }
+  return entries.filter(e=>e[0]&&e[1]&&e[0].length<=80).slice(0,20000);
+}
+function dictStatus(msg){const el=$('#dictStatus');if(el)el.textContent=msg}
+async function refreshDictList(){
+  try{const snap=await getDocs(collection(db,'dictionaries'));installedDicts=snap.docs.map(d=>({id:d.id,...d.data()}))}catch{installedDicts=[]}
+  const sel=$('#dictSel');
+  if(sel){
+    sel.innerHTML=installedDicts.length
+      ?installedDicts.map(d=>`<option value="${d.id}">${esc(d.name)} (${d.lang==='es'?'ES':'EN'})</option>`).join('')
+      :`<option value="">${t('noDicts')}</option>`;
+    const pref=installedDicts.find(d=>d.lang===lang)||installedDicts[0];
+    if(pref&&!dictId)sel.value=pref.id;
+  }
+  renderDictAdmin();
+}
+function renderDictAdmin(){
+  const list=$('#dictList');if(!list)return;
+  list.innerHTML=installedDicts.length?installedDicts.map(d=>`<div class="readerAccessItem"><div><b>${esc(d.name)}</b><small>${d.lang==='es'?'Español':'English'} · ${d.entries||0} entries</small></div><div><button data-dict-remove="${d.id}">Remove</button></div></div>`).join(''):`<p class="smallHelp">${t('noDicts')}</p>`;
+  $$('[data-dict-remove]').forEach(b=>b.onclick=()=>removeDictionary(b.dataset.dictRemove).catch(e=>dictStatus('⚠ '+e.message)));
+}
+async function uploadDictionary(file){
+  if(!owner||!file)return;
+  const name=($('#dictName').value.trim()||file.name.replace(/\.\w+$/,'')).slice(0,80);
+  const dlang=$('#dictLang').value==='es'?'es':'en';
+  dictStatus(t('reading')+' '+file.name+'…');
+  const entries=parseDictionaryFile(await file.text());
+  if(entries.length<5)throw new Error(t('dictParseFail'));
+  const id=(dlang+'-'+name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')).slice(0,60)||('dict-'+Date.now());
+  const chunks=[];let cur=[];let size=0;
+  for(const e of entries){
+    const es_=JSON.stringify(e).length;
+    if(size+es_>420000&&cur.length){chunks.push(cur);cur=[];size=0}
+    cur.push(e);size+=es_;
+  }
+  if(cur.length)chunks.push(cur);
+  for(let i=0;i<chunks.length;i+=10){
+    const batch=writeBatch(db);
+    chunks.slice(i,i+10).forEach((c,j)=>batch.set(doc(db,'dictionaries',id,'chunks',String(i+j).padStart(3,'0')),{json:JSON.stringify(c)}));
+    await batch.commit();
+    dictStatus(`${t('saving')} ${Math.min(i+10,chunks.length)}/${chunks.length}`);
+  }
+  await setDoc(doc(db,'dictionaries',id),{name,lang:dlang,entries:entries.length,chunks:chunks.length,installedAt:new Date().toISOString()});
+  await idbSet('dict-'+id,{meta:{id,name,lang:dlang},entries});
+  dictStatus(`✓ ${name}: ${entries.length} ${t('entriesWord')}`);
+  $('#dictName').value='';
+  await refreshDictList();
+}
+async function removeDictionary(id){
+  if(!owner)return;
+  if(!confirm(t('dictRemoveConfirm')))return;
+  const snap=await getDocs(collection(db,'dictionaries',id,'chunks'));
+  for(let i=0;i<snap.docs.length;i+=400){
+    const batch=writeBatch(db);
+    snap.docs.slice(i,i+400).forEach(d=>batch.delete(d.ref));
+    await batch.commit();
+  }
+  await deleteDoc(doc(db,'dictionaries',id));
+  await idbDel('dict-'+id);
+  if(dictId===id){dictId='';dictData=null;renderDictResults('')}
+  await refreshDictList();
+}
+async function loadDictionary(id){
+  if(!id){dictId='';dictData=null;renderDictResults('');return}
+  const out=$('#dictResults');if(out)out.innerHTML='<p>…</p>';
+  let data=await idbGet('dict-'+id);
+  if(!data){
+    const snap=await getDocs(collection(db,'dictionaries',id,'chunks'));
+    if(snap.empty)throw new Error('Empty dictionary.');
+    const entries=[];
+    snap.docs.sort((a,b)=>a.id<b.id?-1:1).forEach(d=>entries.push(...JSON.parse(d.data().json)));
+    data={meta:installedDicts.find(x=>x.id===id)||{id},entries};
+    await idbSet('dict-'+id,data);
+  }
+  dictId=id;dictData=data;
+  renderDictResults($('#dictSearch')?.value||'');
+}
+function renderDictResults(q){
+  const out=$('#dictResults');if(!out)return;
+  if(!dictData){out.innerHTML=`<p class="smallHelp">${installedDicts.length?t('chooseDict'):t('noDictsMsg')}</p>`;return}
+  q=String(q||'').trim().toLowerCase();
+  if(q.length<2){out.innerHTML=`<p class="smallHelp">${t('dictHint')} (${dictData.entries.length} ${t('entriesWord')})</p>`;return}
+  const norm=x=>x.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const nq=norm(q);
+  const exact=[],starts=[],contains=[];
+  for(const [term,def] of dictData.entries){
+    const nt=norm(term);
+    if(nt===nq)exact.push([term,def]);
+    else if(nt.startsWith(nq))starts.push([term,def]);
+    else if(contains.length<20&&nt.includes(nq))contains.push([term,def]);
+    if(exact.length+starts.length>40)break;
+  }
+  const res=[...exact,...starts,...contains].slice(0,30);
+  out.innerHTML=res.length
+    ?res.map(([term,def])=>`<div class="dictEntry"><b>${esc(term)}</b><p>${esc(def)}</p></div>`).join('')
+    :`<p class="smallHelp">${t('noResults')}</p>`;
+}
+
 function bind(){
   const on=(sel,event,fn)=>{
     const el=$(sel);
@@ -1723,6 +1864,7 @@ function bind(){
   on('#fabNotes','click',()=>togglePanel('notesPanel'));
   on('#fabSearch','click',()=>togglePanel('searchPanel'));
   on('#fabBible','click',()=>togglePanel('biblePanel'));
+  on('#fabDict','click',()=>togglePanel('dictPanel'));
   $$('[data-close-panel]').forEach(b=>b.addEventListener('click',()=>{const el=$('#'+b.dataset.closePanel);if(el)el.hidden=true}));
   on('#notesScope','change',()=>{$('#notesText').value=notesData[notesScopeKey()]||'';$('#notesStatus').textContent=''});
   on('#notesText','input',queueNotesSave);
@@ -1736,6 +1878,11 @@ function bind(){
   on('#printNotes','click',()=>{const sc=$('#notesScope');printHTML('My Notes — '+(sc.options[sc.selectedIndex]?.text||''),`<p>${esc($('#notesText').value).replace(/\n/g,'<br>')}</p>`)});
   on('#printSearch','click',()=>printHTML('Search results — '+$('#globalSearch').value,$('#searchResults').innerHTML));
   on('#printBible','click',()=>printHTML(installedBibles.find(b=>b.id===bibleId)?.name||'Bible',$('#bibleContent').innerHTML));
+  on('#dictSel','change',e=>loadDictionary(e.target.value).catch(err=>{const o=$('#dictResults');if(o)o.innerHTML=`<p>${esc(err.message)}</p>`}));
+  let dictTimer;
+  on('#dictSearch','input',e=>{clearTimeout(dictTimer);dictTimer=setTimeout(()=>renderDictResults(e.target.value),200)});
+  on('#dictUpload','change',e=>uploadDictionary(e.target.files[0]).catch(err=>dictStatus('⚠ '+err.message)));
+  on('#printDict','click',()=>printHTML((installedDicts.find(d=>d.id===dictId)?.name||'Dictionary')+' — '+$('#dictSearch').value,$('#dictResults').innerHTML));
 
   on('#analyzeImport','click',()=>{
     const raw=$('#importPaste').value.trim();
@@ -1804,6 +1951,7 @@ onAuthStateChanged(auth,async u=>{
   renderOwnerPanel().catch(()=>{});
   loadNotes().catch(()=>{});
   refreshBibleList().catch(()=>{});
+  refreshDictList().catch(()=>{});
   loadBranding();
   showLibrary();
 });

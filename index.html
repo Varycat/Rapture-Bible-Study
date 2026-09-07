@@ -10,7 +10,7 @@
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js">
-<link rel="stylesheet" href="css/app.css?v=37"><title>Bible Study Library</title>
+<link rel="stylesheet" href="css/app.css?v=38"><title>Bible Study Library</title>
 <style id="v16ButtonFix">
   .topicActions{
     grid-column:1 / -1 !important;
@@ -531,6 +531,30 @@
       <div id="importStatus" class="smallHelp" aria-live="polite"></div>
     </section>
 
+    <section class="settingsSection adminSection" id="dictSection" hidden>
+      <div class="adminTitleRow">
+        <div>
+          <h3>📕 Bible Dictionaries</h3>
+          <p class="smallHelp">Upload Bible dictionaries in English and Spanish. Readers open them from the floating 📕 button. Formats: JSON ({"term":"definition"} or a list of {term, definition}) or plain text lines like "TERM: definition".</p>
+        </div>
+        <span class="adminBadge">OWNER ONLY</span>
+      </div>
+      <label>Dictionary name
+        <input id="dictName" type="text" maxlength="80" placeholder="Easton's Bible Dictionary">
+      </label>
+      <label>Dictionary language
+        <select id="dictLang">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+        </select>
+      </label>
+      <label>Upload dictionary file (JSON or TXT)
+        <input id="dictUpload" type="file" accept=".json,.txt,application/json,text/plain">
+      </label>
+      <div id="dictStatus" class="smallHelp" aria-live="polite"></div>
+      <div id="dictList" class="readerAccessList"></div>
+    </section>
+
     <section class="settingsSection adminSection" id="diagSection" hidden>
       <div class="adminTitleRow">
         <div>
@@ -627,6 +651,7 @@
   <button id="fabNotes" title="My Notes">📝</button>
   <button id="fabSearch" title="Search">🔍</button>
   <button id="fabBible" title="Bible">📖</button>
+  <button id="fabDict" title="Dictionary">📕</button>
 </div>
 
 <section id="notesPanel" class="floatPanel" hidden>
@@ -643,6 +668,15 @@
   <div class="panelBody">
     <input id="globalSearch" type="search" placeholder="Search studies, topics, verses, Bible...">
     <div id="searchResults" class="searchResults"></div>
+  </div>
+</section>
+
+<section id="dictPanel" class="floatPanel" hidden>
+  <header><h3>📕 Dictionary</h3><div><button id="printDict" title="Print">🖨</button><button class="panelClose" data-close-panel="dictPanel">×</button></div></header>
+  <div class="panelBody">
+    <select id="dictSel"></select>
+    <input id="dictSearch" type="search" placeholder="Look up a word...">
+    <div id="dictResults" class="dictResults"></div>
   </div>
 </section>
 
@@ -677,5 +711,5 @@
 })();
 </script>
 
-<script type="module" src="js/app.js?v=37"></script>
+<script type="module" src="js/app.js?v=38"></script>
 </body></html>

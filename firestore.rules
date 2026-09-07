@@ -45,6 +45,17 @@ service cloud.firestore {
       allow create, update, delete: if isOwner();
     }
 
+    // Bible dictionaries: owner uploads, every signed-in reader can read.
+    match /dictionaries/{dictId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isOwner();
+
+      match /chunks/{chunkId} {
+        allow read: if signedIn();
+        allow create, update, delete: if isOwner();
+      }
+    }
+
     // Installed Bible versions: owner installs, every signed-in reader can read.
     match /bibles/{versionId} {
       allow read: if signedIn();

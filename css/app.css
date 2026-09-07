@@ -600,3 +600,11 @@ dialog::-webkit-scrollbar{width:0;height:0;display:none}
 /* ---------- v37 Auto-translate toast ---------- */
 .mtToast{position:fixed;left:16px;bottom:16px;z-index:960;background:var(--app-primary,#0c73e6);color:#fff;font-weight:800;font-size:14px;border-radius:999px;padding:11px 18px;box-shadow:0 10px 30px rgba(0,25,80,.35);max-width:min(420px,80vw);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mtToast[hidden]{display:none}
+
+/* ---------- v38 Dictionary panel ---------- */
+#dictSel{min-height:40px;border:1px solid var(--panel-border,var(--line,#d6e3f2));border-radius:9px;background:var(--panel-bg,var(--app-card,#fff));color:inherit;font:inherit;padding:4px 8px;width:100%}
+.dictResults{display:grid;gap:8px}
+.dictEntry{border:1px solid var(--panel-border,var(--line,#dce6f2));border-radius:10px;padding:10px 12px;background:var(--panel-bg,var(--app-card,#fff))}
+.dictEntry b{font-size:15px}
+.dictEntry p{margin:5px 0 0;font-size:14px;line-height:1.55}
+#dictSection input[type="text"]{width:100%;min-height:42px;border:1px solid var(--line,#dce6f2);border-radius:10px;padding:8px 11px;font:inherit;background:var(--app-card,#fff);color:inherit}
