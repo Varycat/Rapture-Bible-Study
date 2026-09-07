@@ -1,0 +1,8 @@
+V36 puts the translate button on the study page.
+- Each study page now shows "🌐 Translate this study" / "🌐 Traducir este
+  estudio" right next to Edit Study (owner only). One click translates the
+  study and every topic; when it finishes the page refreshes immediately so
+  you see the Spanish version on the spot.
+- Includes V35 (Scripture quotes translate: Juan 5:39, 2 Timoteo 3:16,
+  Salmos 119:105).
+- Cache/assets bumped to v36.

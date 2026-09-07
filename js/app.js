@@ -44,6 +44,9 @@ let lang=localStorage.getItem(LANG_KEY)||'en';
 const I18N={
 en:{
  home:'Home',about:'About',settings:'Settings',signOut:'Sign Out',
+ scriptureHeader:'“Search the Scriptures... they are they which testify of Me.”<br><small>John 5:39</small>',
+ sideQuote:'“All Scripture is given by<br>inspiration of God...”<br><b>2 Timothy 3:16</b>',
+ heroVerse:'“Thy word is a lamp unto my feet,<br>and a light unto my path.”<br><small>Psalm 119:105</small>',
  authPrivate:'This library is private. Sign in with the email and password provided by the owner.',
  emailL:'Email',passwordL:'Password',signIn:'Sign In',signingIn:'Signing in…',signInFail:'Sign in failed. Check the email and password.',
  studiesTitle:'📖 Studies',studyIndexTitle:'📖 Study Index',searchPh:'Search studies or topics...',
@@ -112,10 +115,13 @@ en:{
  sectionTplL:'Insert a ready-made section title',
  favAdd:'Add to favorites',favDel:'Remove from favorites',
  topicIconL:'Topic icon',iconFileL:'Or upload an icon file (PNG, SVG, WebP — transparent backgrounds work)',removeIcon:'✕ Remove icon',
- translateStudyBtn:'🌐 Translate study + all topics (automatic)',translating:'Translating…',translateDone:'Translation saved. Switch the language selector to see it. Review the text and re-run after editing.',translateFail:'Translation service unavailable right now — try again in a minute.',mtNote:'Automatic machine translation by a free public service — review the result. Bible verses are NOT machine-translated: install a Spanish Bible (Reina Valera) in Settings → Bible Versions and verses display from it.'
+ translateStudyBtn:'🌐 Translate study + all topics (automatic)',translateNow:'🌐 Translate this study',translating:'Translating…',translateDone:'Translation saved. Switch the language selector to see it. Review the text and re-run after editing.',translateFail:'Translation service unavailable right now — try again in a minute.',mtNote:'Automatic machine translation by a free public service — review the result. Bible verses are NOT machine-translated: install a Spanish Bible (Reina Valera) in Settings → Bible Versions and verses display from it.'
 },
 es:{
  home:'Inicio',about:'Acerca',settings:'Ajustes',signOut:'Salir',
+ scriptureHeader:'“Escudriñad las Escrituras... ellas son las que dan testimonio de mí.”<br><small>Juan 5:39</small>',
+ sideQuote:'“Toda la Escritura es dada<br>por inspiración de Dios...”<br><b>2 Timoteo 3:16</b>',
+ heroVerse:'“Lámpara es a mis pies tu palabra,<br>y lumbrera a mi camino.”<br><small>Salmos 119:105</small>',
  authPrivate:'Esta biblioteca es privada. Inicia sesión con el correo y la contraseña proporcionados por el propietario.',
  emailL:'Correo',passwordL:'Contraseña',signIn:'Iniciar Sesión',signingIn:'Iniciando sesión…',signInFail:'No se pudo iniciar sesión. Verifica el correo y la contraseña.',
  studiesTitle:'📖 Estudios',studyIndexTitle:'📖 Índice del Estudio',searchPh:'Buscar estudios o temas...',
@@ -184,11 +190,12 @@ es:{
  sectionTplL:'Insertar un título de sección predefinido',
  favAdd:'Añadir a favoritos',favDel:'Quitar de favoritos',
  topicIconL:'Icono del tema',iconFileL:'O sube un archivo de icono (PNG, SVG, WebP — fondos transparentes funcionan)',removeIcon:'✕ Quitar icono',
- translateStudyBtn:'🌐 Traducir estudio + todos los temas (automático)',translating:'Traduciendo…',translateDone:'Traducción guardada. Cambia el selector de idioma para verla. Revisa el texto y vuelve a ejecutar si editas.',translateFail:'El servicio de traducción no está disponible ahora — intenta en un minuto.',mtNote:'Traducción automática mediante un servicio público gratuito — revisa el resultado. Los versículos NO se traducen automáticamente: instala una Biblia en español (Reina Valera) en Ajustes → Versiones de la Biblia y se mostrarán desde ella.'
+ translateStudyBtn:'🌐 Traducir estudio + todos los temas (automático)',translateNow:'🌐 Traducir este estudio',translating:'Traduciendo…',translateDone:'Traducción guardada. Cambia el selector de idioma para verla. Revisa el texto y vuelve a ejecutar si editas.',translateFail:'El servicio de traducción no está disponible ahora — intenta en un minuto.',mtNote:'Traducción automática mediante un servicio público gratuito — revisa el resultado. Los versículos NO se traducen automáticamente: instala una Biblia en español (Reina Valera) en Ajustes → Versiones de la Biblia y se mostrarán desde ella.'
 }
 };
 function t(k){return (I18N[lang]&&I18N[lang][k])??I18N.en[k]??k}
 const I18N_MAP=[
+ ['.scriptureHeader','scriptureHeader','html'],['.sideQuote','sideQuote','html'],['.heroVerse','heroVerse','html'],
  ['#homeBtn span','home'],['#aboutBtn span','about'],['#settingsBtn span','settings'],['#signOutBtn span','signOut'],
  ['.authCard p','authPrivate'],['label:has(#loginEmail)','emailL','label'],['label:has(#loginPassword)','passwordL','label'],['#loginForm button[type=submit]','signIn'],
  ['#search','searchPh','ph'],
@@ -212,7 +219,7 @@ const I18N_MAP=[
  ['#panelSection h3','secPanels'],['#navSection h3','secNav'],['#importSection h3','secImport'],['#diagSection h3','secDiag'],
  ['label:has(#importPaste)','pasteL','label'],['label:has(#importFile)','importFileL','label'],['label:has(#importUrl)','importUrlL','label'],
  ['#analyzeImport','analyzeBtn'],['#importUrlBtn','importUrlBtn'],['#runDiagBtn','runDiag'],
- ['label:has(#editStudyStatus)','statusL','label'],['label:has(#editStudyLang)','languageStudyL','label'],['#deleteStudyBtn','deleteStudy'],['#translateStudyBtn','translateStudyBtn'],
+ ['label:has(#editStudyStatus)','statusL','label'],['label:has(#editStudyLang)','languageStudyL','label'],['#deleteStudyBtn','deleteStudy'],['#translateStudyBtn','translateStudyBtn'],['#translateStudyBtn2','translateNow'],
  ['label:has(#sectionTemplate)','sectionTplL','label'],['label:has(#editTopicIcon)','topicIconL','label'],['label:has(#editTopicIconFile)','iconFileL','label'],['#clearTopicIcon','removeIcon'],
  ['#saveSettings','saveSettings'],['#resetSettings','resetAppearance'],
  ['label:has(#settingTitle)','appTitle','label'],['label:has(#settingSubtitle)','subtitleL','label'],
@@ -1497,6 +1504,9 @@ async function translateWholeStudy(){
       tp['tr_'+to]=e;
     }
     prog('✓ '+t('translateDone'));
+    renderStudyHeader();
+    if(!$('#studyView').hidden)renderTopicIndex();
+    if(!$('#topicView').hidden&&topics[currentTopic])renderTopic();
   }catch(err){prog('⚠ '+err.message)}
 }
 
@@ -1689,6 +1699,7 @@ function bind(){
   on('#runDiagBtn','click',()=>runDiagnostics());
   on('#deleteStudyBtn','click',()=>deleteCustomStudy().catch(e=>openDialog('Delete',`<p>${esc(e.message)}</p>`)));
   on('#translateStudyBtn','click',()=>translateWholeStudy());
+  on('#translateStudyBtn2','click',()=>translateWholeStudy());
   on('#editTopicIcon','input',e=>{topicIconDraft=e.target.value.trim()});
   on('#clearTopicIcon','click',()=>{topicIconDraft='';$('#editTopicIcon').value='';$('#editTopicIconFile').value=''});
   on('#editTopicIconFile','change',async e=>{

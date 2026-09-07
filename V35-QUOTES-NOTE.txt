@@ -1,0 +1,7 @@
+V35 translates the decorative Scripture quotes.
+- The top-bar quote (John 5:39), the sidebar quote (2 Timothy 3:16), and the
+  hero verse card (Psalm 119:105) now switch with the language, using the real
+  Reina Valera wording in Spanish (Juan 5:39, 2 Timoteo 3:16, Salmos 119:105).
+- Reminder: STUDY titles/subtitles/content translate after running
+  ✎ Edit Study -> 🌐 Translate study + all topics — once per study.
+- Cache/assets bumped to v35.
