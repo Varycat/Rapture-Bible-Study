@@ -593,3 +593,6 @@ dialog::-webkit-scrollbar{width:0;height:0;display:none}
 
 /* ---------- v33 Remove-icon buttons ---------- */
 .iconClearBtn{border:1px solid #e4aaa2;background:#fff3f1;color:#a33326;border-radius:9px;padding:8px 12px;font-weight:800;cursor:pointer}
+
+/* ---------- v34 ---------- */
+.editorActions{gap:9px}

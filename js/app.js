@@ -111,7 +111,8 @@ en:{
  runDiag:'▶ Run diagnostics',diagFixCache:'🧹 Clear app cache & update',diagFixBible:'🧹 Clear Bible device cache',
  sectionTplL:'Insert a ready-made section title',
  favAdd:'Add to favorites',favDel:'Remove from favorites',
- topicIconL:'Topic icon',iconFileL:'Or upload an icon file (PNG, SVG, WebP — transparent backgrounds work)',removeIcon:'✕ Remove icon'
+ topicIconL:'Topic icon',iconFileL:'Or upload an icon file (PNG, SVG, WebP — transparent backgrounds work)',removeIcon:'✕ Remove icon',
+ translateStudyBtn:'🌐 Translate study + all topics (automatic)',translating:'Translating…',translateDone:'Translation saved. Switch the language selector to see it. Review the text and re-run after editing.',translateFail:'Translation service unavailable right now — try again in a minute.',mtNote:'Automatic machine translation by a free public service — review the result. Bible verses are NOT machine-translated: install a Spanish Bible (Reina Valera) in Settings → Bible Versions and verses display from it.'
 },
 es:{
  home:'Inicio',about:'Acerca',settings:'Ajustes',signOut:'Salir',
@@ -182,7 +183,8 @@ es:{
  runDiag:'▶ Ejecutar diagnóstico',diagFixCache:'🧹 Limpiar caché y actualizar',diagFixBible:'🧹 Limpiar caché de Biblia del dispositivo',
  sectionTplL:'Insertar un título de sección predefinido',
  favAdd:'Añadir a favoritos',favDel:'Quitar de favoritos',
- topicIconL:'Icono del tema',iconFileL:'O sube un archivo de icono (PNG, SVG, WebP — fondos transparentes funcionan)',removeIcon:'✕ Quitar icono'
+ topicIconL:'Icono del tema',iconFileL:'O sube un archivo de icono (PNG, SVG, WebP — fondos transparentes funcionan)',removeIcon:'✕ Quitar icono',
+ translateStudyBtn:'🌐 Traducir estudio + todos los temas (automático)',translating:'Traduciendo…',translateDone:'Traducción guardada. Cambia el selector de idioma para verla. Revisa el texto y vuelve a ejecutar si editas.',translateFail:'El servicio de traducción no está disponible ahora — intenta en un minuto.',mtNote:'Traducción automática mediante un servicio público gratuito — revisa el resultado. Los versículos NO se traducen automáticamente: instala una Biblia en español (Reina Valera) en Ajustes → Versiones de la Biblia y se mostrarán desde ella.'
 }
 };
 function t(k){return (I18N[lang]&&I18N[lang][k])??I18N.en[k]??k}
@@ -210,7 +212,7 @@ const I18N_MAP=[
  ['#panelSection h3','secPanels'],['#navSection h3','secNav'],['#importSection h3','secImport'],['#diagSection h3','secDiag'],
  ['label:has(#importPaste)','pasteL','label'],['label:has(#importFile)','importFileL','label'],['label:has(#importUrl)','importUrlL','label'],
  ['#analyzeImport','analyzeBtn'],['#importUrlBtn','importUrlBtn'],['#runDiagBtn','runDiag'],
- ['label:has(#editStudyStatus)','statusL','label'],['label:has(#editStudyLang)','languageStudyL','label'],['#deleteStudyBtn','deleteStudy'],
+ ['label:has(#editStudyStatus)','statusL','label'],['label:has(#editStudyLang)','languageStudyL','label'],['#deleteStudyBtn','deleteStudy'],['#translateStudyBtn','translateStudyBtn'],
  ['label:has(#sectionTemplate)','sectionTplL','label'],['label:has(#editTopicIcon)','topicIconL','label'],['label:has(#editTopicIconFile)','iconFileL','label'],['#clearTopicIcon','removeIcon'],
  ['#saveSettings','saveSettings'],['#resetSettings','resetAppearance'],
  ['label:has(#settingTitle)','appTitle','label'],['label:has(#settingSubtitle)','subtitleL','label'],
@@ -258,7 +260,11 @@ function applyLang(){
     else el.textContent=t(key);
   });
   if(studies.length&&!$('#libraryView').hidden){renderLibrary();if(!currentStudy)renderSidebar($('#search')?.value||'')}
-  if(currentStudy&&!$('#studyView').hidden)renderTopicIndex();
+  if(currentStudy&&!$('#studyView').hidden){renderStudyHeader();renderTopicIndex()}
+  if(currentStudy&&!$('#topicView').hidden&&topics[currentTopic]){renderStudyHeader();renderTopic()}
+  ensureLangBible(lang).then(()=>{
+    if(currentStudy&&!$('#topicView').hidden&&topics[currentTopic])renderTopic();
+  }).catch(()=>{});
   refreshProgressUI();
   refreshNotesScope();
   if($('#biblePanel')&&!bibleData)renderBibleReader();
@@ -308,7 +314,7 @@ function applySettings(s){
   document.title=s.title;
 }
 let heroImageValue=null, bannersDraft=null;
-let branding={hero:'',heroAdj:null,banners:{},icons:{},navLinks:[],catalog:[]};
+let branding={hero:'',heroAdj:null,banners:{},icons:{},navLinks:[],catalog:[],trStudies:{}};
 let navDraft=null;
 function effNavLinks(){return navDraft===null?branding.navLinks:navDraft}
 let iconsDraft=null;
@@ -523,7 +529,7 @@ function renderLibrary(){
   if(libFilter==='en'||libFilter==='es')list=list.filter(s=>(s.language||'en')===libFilter);
   else if(libFilter==='fav')list=list.filter(s=>favorites.has(s.id));
   else if(libFilter==='drafts')list=list.filter(s=>s.draft);
-  $('#featuredStudies').innerHTML=list.length?list.map((s,i)=>`<article class="studyCard ${i===0?'primary':''}"><div class="studyThumb${effBanners()[s.id]?' hasPhoto':''}"${effBanners()[s.id]?` style="--card-photo:url('${effBanners()[s.id]}')"`:''}><span class="thumbIcon">${iconHTML(s.id,s.icon)}</span>${s.draft?`<span class="draftBadge">${t('draftL')}</span>`:''}</div><div class="cardBody"><div class="titleRow"><h3 class="thumbTitle">${s.title}</h3><button class="favBtn" data-fav="${s.id}" title="${favorites.has(s.id)?t('favDel'):t('favAdd')}" aria-label="${favorites.has(s.id)?t('favDel'):t('favAdd')}">${favorites.has(s.id)?'★':'☆'}</button></div><div class="sub">${s.subtitle||''}</div><p>${s.description||''}</p><button data-study="${s.id}">${t('openStudyBtn')}</button></div></article>`).join(''):`<article class="studyCard"><div class="cardBody"><h3>${t('noStudiesH')}</h3><p>${t('noStudiesP')}</p></div></article>`;
+  $('#featuredStudies').innerHTML=list.length?list.map((s,i)=>`<article class="studyCard ${i===0?'primary':''}"><div class="studyThumb${effBanners()[s.id]?' hasPhoto':''}"${effBanners()[s.id]?` style="--card-photo:url('${effBanners()[s.id]}')"`:''}><span class="thumbIcon">${iconHTML(s.id,s.icon)}</span>${s.draft?`<span class="draftBadge">${t('draftL')}</span>`:''}</div><div class="cardBody"><div class="titleRow"><h3 class="thumbTitle">${trStudy(s).title}</h3><button class="favBtn" data-fav="${s.id}" title="${favorites.has(s.id)?t('favDel'):t('favAdd')}" aria-label="${favorites.has(s.id)?t('favDel'):t('favAdd')}">${favorites.has(s.id)?'★':'☆'}</button></div><div class="sub">${trStudy(s).subtitle||''}</div><p>${trStudy(s).description||''}</p><button data-study="${s.id}">${t('openStudyBtn')}</button></div></article>`).join(''):`<article class="studyCard"><div class="cardBody"><h3>${t('noStudiesH')}</h3><p>${t('noStudiesP')}</p></div></article>`;
   $$('[data-study]').forEach(b=>b.onclick=()=>openStudy(b.dataset.study));
   $$('[data-fav]').forEach(b=>b.onclick=e=>{e.stopPropagation();toggleFavorite(b.dataset.fav)});
 }
@@ -538,7 +544,7 @@ function renderSidebar(q=''){
   $('#sideTitle').textContent=t('studiesTitle');
   $('#sideNav').innerHTML=
     `<button id="navAllStudies" class="navItem active"><span class="navIcon">▦</span><span class="navText">${t('allStudies')}<small>${t('browseAll')}</small></span></button>`
-    +list.map(s=>`<button class="navItem" data-study="${s.id}"><span class="navIcon">${iconHTML(s.id,s.icon)}</span><span class="navText">${s.title}<small>${s.subtitle||''}</small></span></button>`).join('');
+    +list.map(s=>`<button class="navItem" data-study="${s.id}"><span class="navIcon">${iconHTML(s.id,s.icon)}</span><span class="navText">${trStudy(s).title}<small>${trStudy(s).subtitle||''}</small></span></button>`).join('');
   $('#sideNav').innerHTML+=effNavLinks().map((L,i)=>`<button class="navItem" data-navlink="${i}"><span class="navIcon">${navIconHTML(L.icon)}</span><span class="navText">${esc(L.label||'Link')}${L.sub?`<small>${esc(L.sub)}</small>`:''}</span></button>`).join('');
   $$('#sideNav [data-study]').forEach(b=>b.onclick=()=>openStudy(b.dataset.study));
   $$('#sideNav [data-navlink]').forEach(b=>b.onclick=()=>runNavLink(effNavLinks()[+b.dataset.navlink]));
@@ -554,6 +560,14 @@ function runNavLink(L){
   else if(L.action==='panel')openPanel(L.value||'notesPanel');
   else if(L.action==='url'&&L.value)window.open(L.value,'_blank','noopener');
 }
+function renderStudyHeader(){
+  if(!currentStudy)return;
+  const d=trStudy(currentStudy);
+  $('#studyTitle').textContent=d.title;
+  $('#studyDescription').textContent=d.description||'';
+  $('#studyCrumb').textContent=d.title;
+  $('#crumbStudy').textContent=d.title;
+}
 function applyStudyHeaderBanner(){
   const tc=document.querySelector('.studyTitleCard');if(!tc)return;
   const ban=currentStudy&&effBanners()[currentStudy.id];
@@ -565,7 +579,7 @@ async function openStudy(id){
   if(!owner&&!allowedStudies.includes(id))return;
   currentStudy=studies.find(s=>s.id===id); if(!currentStudy)return;
   try{const sdata=await loadStudyContent(id);Object.assign(currentStudy,sdata)}catch(e){openDialog(t('studyNotReady'),`<p>${e.message}</p>`);return}
-  $('#studyTitle').textContent=currentStudy.title;$('#studyDescription').textContent=currentStudy.description||'';$('#studyCrumb').textContent=currentStudy.title;$('#crumbStudy').textContent=currentStudy.title;
+  renderStudyHeader();
   $('#studyVideos').innerHTML=videoGrid(currentStudy.videos);
   applyStudyHeaderBanner();
   showStudy();
@@ -573,30 +587,30 @@ async function openStudy(id){
 function renderTopicIndex(q=''){
   const m=topics.filter(t=>(t.title+' '+(t.subtitle||'')+' '+(t.verses||[]).join(' ')).toLowerCase().includes(q.toLowerCase()));
   $('#sideTitle').textContent=t('studyIndexTitle');
-  $('#sideNav').innerHTML=m.map((t,i)=>`<button class="navItem" data-topic="${t.id}"><span class="navIcon">${topicIconHTML(t)}</span><span class="navText">${topics.indexOf(t)+1}. ${t.title}<small>${t.subtitle||''}</small></span></button>`).join('');
-  $('#topicCards').innerHTML=m.map(t=>`<button data-topic="${t.id}"><span class="topicCardIcon">${topicIconHTML(t)}</span><span class="topicCardBody"><h3>${topics.indexOf(t)+1}. ${t.title}</h3><p>${t.subtitle||''}</p></span></button>`).join('');
+  $('#sideNav').innerHTML=m.map(tp=>{const d=trTopic(tp);return `<button class="navItem" data-topic="${tp.id}"><span class="navIcon">${topicIconHTML(tp)}</span><span class="navText">${topics.indexOf(tp)+1}. ${d.title}<small>${d.subtitle||''}</small></span></button>`}).join('');
+  $('#topicCards').innerHTML=m.map(tp=>{const d=trTopic(tp);return `<button data-topic="${tp.id}"><span class="topicCardIcon">${topicIconHTML(tp)}</span><span class="topicCardBody"><h3>${topics.indexOf(tp)+1}. ${d.title}</h3><p>${d.subtitle||''}</p></span></button>`}).join('');
   $$('[data-topic]').forEach(b=>b.onclick=()=>openTopic(b.dataset.topic));
   const c=$('#completeStudyBtn'); if(c)c.hidden=false; updateOwnerButtons(); refreshProgressUI();
 }
 function openTopic(id){currentTopic=topics.findIndex(t=>t.id===id);if(currentTopic>=0)showTopic()}
 function renderTopic(){
-  const t=topics[currentTopic];$('#topicNumber').textContent=currentTopic+1;$('#topicTitle').textContent=t.title;$('#topicRefs').textContent=(t.verses||[]).join('   |   ');$('#crumbTopic').textContent=t.title;
+  const t=trTopic(topics[currentTopic]);$('#topicNumber').textContent=currentTopic+1;$('#topicTitle').textContent=t.title;$('#topicRefs').textContent=(t.verses||[]).map(refDisplay).join('   |   ');$('#crumbTopic').textContent=t.title;
   $('#preSummary').textContent=t.pretrib?.summary||'';$('#sdaSummary').textContent=t.adventist?.summary||'';$('#bibleFirst').textContent=t.bible_first||'';
   $('#topicVideos').innerHTML=videoGrid(t.videos);
   $('#preVideos').innerHTML=videoGrid(t.pretrib?.videos);
   $('#sdaVideos').innerHTML=videoGrid(t.adventist?.videos);
   $('#bibleVideos').innerHTML=videoGrid(t.bible_videos);
-  $('#featuredVerse').textContent='“'+(verses[(t.verses||[])[0]]||'')+'”';$('#takeawayList').innerHTML=(t.takeaways||[]).map(x=>`<li>${x}</li>`).join('');
+  $('#featuredVerse').textContent='“'+(displayVerseText((t.verses||[])[0])||'')+'”';$('#takeawayList').innerHTML=(t.takeaways||[]).map(x=>`<li>${x}</li>`).join('');
   renderTopicExtras(t);updateOwnerButtons();
-  $('#relatedList').innerHTML=topics.filter((_,i)=>i!==currentTopic).slice(0,4).map(r=>`<button data-related="${r.id}">${r.title} ›</button>`).join('');
+  $('#relatedList').innerHTML=topics.filter((_,i)=>i!==currentTopic).slice(0,4).map(r=>`<button data-related="${r.id}">${trTopic(r).title} ›</button>`).join('');
   $$('[data-related]').forEach(b=>b.onclick=()=>openTopic(b.dataset.related));
-  $('#sideNav').innerHTML=topics.map((x,i)=>`<button class="navItem ${i===currentTopic?'active':''}" data-topic="${x.id}"><span class="navIcon">${topicIconHTML(x)}</span><span class="navText">${i+1}. ${x.title}<small>${x.subtitle||''}</small></span></button>`).join('');
+  $('#sideNav').innerHTML=topics.map((x,i)=>{const d=trTopic(x);return `<button class="navItem ${i===currentTopic?'active':''}" data-topic="${x.id}"><span class="navIcon">${topicIconHTML(x)}</span><span class="navText">${i+1}. ${d.title}<small>${d.subtitle||''}</small></span></button>`}).join('');
   $$('#sideNav [data-topic]').forEach(b=>b.onclick=()=>openTopic(b.dataset.topic));
   $('#prevBtn').disabled=currentTopic===0;$('#nextBtn').disabled=currentTopic===topics.length-1;refreshProgressUI();
 }
 function supportHTML(items=[]){return items.map(x=>`<div class="supportItem"><button data-ref="${x.ref}">📖 ${x.ref}</button><p>${x.why}</p></div>`).join('')}
 function detail(kind){
-  const t=topics[currentTopic];let title='',html='';
+  const t=trTopic(topics[currentTopic]);let title='',html='';
   if(kind==='preTeach'){title=I18N[lang].preTeachT;html=`<p>${t.pretrib?.teaching||''}</p>`+videoGrid(t.pretrib?.videos)}
   if(kind==='preSupport'){title=I18N[lang].preSupT;html=supportHTML(t.pretrib?.support)}
   if(kind==='sdaTeach'){title=I18N[lang].sdaTeachT;html=`<p>${t.adventist?.teaching||''}</p>`+videoGrid(t.adventist?.videos)}
@@ -604,7 +618,7 @@ function detail(kind){
   openDialog(title,html)
 }
 function openDialog(title,html){$('#dialogTitle').textContent=title;$('#dialogBody').innerHTML=html;$$('#dialogBody [data-ref]').forEach(b=>b.onclick=()=>showVerse(b.dataset.ref));$('#dialog').showModal()}
-function showVerse(ref){openDialog(ref,`<p style="font-family:Georgia,serif;font-size:19px;line-height:1.6">${verses[ref]||t('verseMissing')}</p>`)}
+function showVerse(ref){openDialog(refDisplay(ref),`<p style="font-family:Georgia,serif;font-size:19px;line-height:1.6">${displayVerseText(ref)||t('verseMissing')}</p>`)}
 
 async function renderOwnerPanel(){
   const sec=$('#ownerAccessSection'); if(!sec)return; sec.hidden=!owner;if(!owner)return;
@@ -914,6 +928,8 @@ async function refreshBibleList(){
     if(bibleId)sel.value=bibleId;
   }
   renderBibleAdmin();
+  ensureLangBible(lang).catch(()=>{});
+  ensureLangBible('en').catch(()=>{});
 }
 function renderBibleAdmin(){
   const sec=$('#bibleAdminSection');if(!sec)return;sec.hidden=!owner;if(!owner)return;
@@ -1139,8 +1155,8 @@ function applyPhotos(){
 async function loadBranding(){
   try{
     const snap=await getDocs(collection(db,'branding'));
-    const b={hero:'',heroAdj:null,banners:{},icons:{},navLinks:[],catalog:[]};
-    snap.docs.forEach(d=>{const x=d.data();if(d.id==='hero'){b.hero=x.src||'';b.heroAdj=x.adj||null}else if(d.id==='navlinks'){b.navLinks=x.items||[]}else if(d.id==='catalog'){b.catalog=x.items||[]}else if(d.id.startsWith('banner-')){const id=d.id.slice(7);if(x.src)b.banners[id]=x.src;if(x.icon)b.icons[id]=x.icon}});
+    const b={hero:'',heroAdj:null,banners:{},icons:{},navLinks:[],catalog:[],trStudies:{}};
+    snap.docs.forEach(d=>{const x=d.data();if(d.id==='hero'){b.hero=x.src||'';b.heroAdj=x.adj||null}else if(d.id==='navlinks'){b.navLinks=x.items||[]}else if(d.id==='catalog'){b.catalog=x.items||[]}else if(d.id==='translations'){b.trStudies=x.items||{}}else if(d.id.startsWith('banner-')){const id=d.id.slice(7);if(x.src)b.banners[id]=x.src;if(x.icon)b.icons[id]=x.icon}});
     branding=b;
   }catch(e){console.warn('Branding not loaded:',e.message)}
   mergeCatalog();
@@ -1353,6 +1369,137 @@ async function runDiagnostics(){
   if(c2)c2.onclick=()=>{try{indexedDB.deleteDatabase('bible-study-cache');bibleData=null;bibleId='';c2.textContent='✓'}catch{}};
 }
 
+
+/* ===== v34: Full content translation — verses from Spanish Bibles, study text via machine translation ===== */
+const EN_BOOKS=['Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth','1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah','Esther','Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon','Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel','Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi','Matthew','Mark','Luke','John','Acts','Romans','1 Corinthians','2 Corinthians','Galatians','Ephesians','Philippians','Colossians','1 Thessalonians','2 Thessalonians','1 Timothy','2 Timothy','Titus','Philemon','Hebrews','James','1 Peter','2 Peter','1 John','2 John','3 John','Jude','Revelation'];
+const ES_BOOKS=['Génesis','Éxodo','Levítico','Números','Deuteronomio','Josué','Jueces','Rut','1 Samuel','2 Samuel','1 Reyes','2 Reyes','1 Crónicas','2 Crónicas','Esdras','Nehemías','Ester','Job','Salmos','Proverbios','Eclesiastés','Cantares','Isaías','Jeremías','Lamentaciones','Ezequiel','Daniel','Oseas','Joel','Amós','Abdías','Jonás','Miqueas','Nahúm','Habacuc','Sofonías','Hageo','Zacarías','Malaquías','Mateo','Marcos','Lucas','Juan','Hechos','Romanos','1 Corintios','2 Corintios','Gálatas','Efesios','Filipenses','Colosenses','1 Tesalonicenses','2 Tesalonicenses','1 Timoteo','2 Timoteo','Tito','Filemón','Hebreos','Santiago','1 Pedro','2 Pedro','1 Juan','2 Juan','3 Juan','Judas','Apocalipsis'];
+function normBook(x){return String(x).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[.\s]/g,'')}
+const BOOK_INDEX={};
+EN_BOOKS.forEach((n,i)=>BOOK_INDEX[normBook(n)]=i);
+ES_BOOKS.forEach((n,i)=>BOOK_INDEX[normBook(n)]=i);
+BOOK_INDEX[normBook('Psalm')]=18;BOOK_INDEX[normBook('Salmo')]=18;BOOK_INDEX[normBook('Songs')]=21;BOOK_INDEX[normBook('Cantar de los Cantares')]=21;BOOK_INDEX[normBook('Apocalypse')]=65;
+function parseRef(ref){
+  const m=String(ref||'').trim().match(/^(.+?)\s+(\d{1,3})[:.](\d{1,3})(?:\s?[-–]\s?(\d{1,3}))?$/);
+  if(!m)return null;
+  const bi=BOOK_INDEX[normBook(m[1])];
+  if(bi===undefined)return null;
+  return {bi,ch:+m[2],v1:+m[3],v2:m[4]?+m[4]:+m[3]};
+}
+let langBibles={};
+async function fetchBibleData(id){
+  let data=await idbGet(id);
+  if(!data){
+    const snap=await getDocs(collection(db,'bibles',id,'books'));
+    if(snap.empty)throw new Error('This version has no content in Firestore.');
+    const books=snap.docs.map(d=>d.data()).sort((a,b)=>(a.order||0)-(b.order||0)).map(b=>({...b,chapters:JSON.parse(b.chapters)}));
+    data={meta:installedBibles.find(b=>b.id===id)||{id},books};
+    await idbSet(id,data);
+  }
+  return data;
+}
+async function ensureLangBible(l){
+  if(langBibles[l]||!user)return;
+  const b=installedBibles.find(x=>(x.lang||'').startsWith(l))||installedBibles.find(x=>x.id.startsWith(l+'-'));
+  if(!b)return;
+  try{langBibles[l]=await fetchBibleData(b.id)}catch{}
+}
+function lookupVerse(l,ref){
+  const data=langBibles[l];if(!data)return '';
+  const r=parseRef(ref);if(!r)return '';
+  const book=data.books[r.bi];if(!book)return '';
+  const ch=book.chapters[r.ch-1];if(!ch)return '';
+  return ch.slice(r.v1-1,Math.min(r.v2,ch.length)).join(' ');
+}
+function displayVerseText(ref){
+  if(lang==='es'){const v=lookupVerse('es',ref);if(v)return v}
+  return verses[ref]||lookupVerse('en',ref)||'';
+}
+function refDisplay(ref){
+  if(lang!=='es')return ref;
+  const r=parseRef(ref);if(!r)return ref;
+  return `${ES_BOOKS[r.bi]} ${r.ch}:${r.v1}${r.v2!==r.v1?'-'+r.v2:''}`;
+}
+/* Machine translation via free public services (Google gtx, fallback MyMemory). */
+async function mtranslate(text,from,to){
+  if(!text||!text.trim())return text||'';
+  try{
+    const r=await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`);
+    if(r.ok){const j=await r.json();const out=(j[0]||[]).map(x=>x&&x[0]||'').join('');if(out)return out}
+  }catch{}
+  const r2=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.slice(0,499))}&langpair=${from}|${to}`);
+  const j2=await r2.json();
+  const alt=j2.responseData?.translatedText;
+  if(alt&&j2.responseStatus===200)return alt;
+  throw new Error(I18N[lang].translateFail);
+}
+async function mtLong(text,from,to){
+  if(!text||!String(text).trim())return text||'';
+  const parts=[];let cur='';
+  for(const para of String(text).split('\n')){
+    if((cur+'\n'+para).length>1400){if(cur)parts.push(cur);cur=para}
+    else cur=cur?cur+'\n'+para:para;
+  }
+  if(cur)parts.push(cur);
+  const out=[];
+  for(const pce of parts)out.push(await mtranslate(pce,from,to));
+  return out.join('\n');
+}
+function studyLang(st){return (st?.language)||'en'}
+function trTopic(tp){
+  if(!tp)return tp;
+  if(lang===studyLang(currentStudy))return tp;
+  const e=tp['tr_'+lang];
+  if(!e)return tp;
+  return {...tp,
+    title:e.title||tp.title,subtitle:e.subtitle||tp.subtitle,
+    pretrib:{...(tp.pretrib||{}),summary:e.preS||tp.pretrib?.summary,teaching:e.preT||tp.pretrib?.teaching},
+    adventist:{...(tp.adventist||{}),summary:e.sdaS||tp.adventist?.summary,teaching:e.sdaT||tp.adventist?.teaching},
+    bible_first:e.bf||tp.bible_first,
+    takeaways:(e.takeaways&&e.takeaways.length)?e.takeaways:tp.takeaways,
+    notes:e.notes||tp.notes,
+    extraSections:(e.extras&&e.extras.length)?e.extras:tp.extraSections};
+}
+function trStudy(st){
+  if(!st)return st;
+  if(lang===studyLang(st))return st;
+  const tr=(branding.trStudies||{})[st.id]?.[lang];
+  return tr?{...st,...tr}:st;
+}
+async function translateTopicData(tp,from,to){
+  const e={};
+  const steps=[['title',tp.title],['subtitle',tp.subtitle],['preS',tp.pretrib?.summary],['preT',tp.pretrib?.teaching],['sdaS',tp.adventist?.summary],['sdaT',tp.adventist?.teaching],['bf',tp.bible_first],['notes',tp.notes]];
+  for(const [k,v] of steps){if(v)e[k]=await mtLong(v,from,to)}
+  if(tp.takeaways?.length){e.takeaways=[];for(const x of tp.takeaways)e.takeaways.push(await mtLong(x,from,to))}
+  if(tp.extraSections?.length){e.extras=[];for(const x of tp.extraSections)e.extras.push({title:x.title?await mtLong(x.title,from,to):'',content:x.content?await mtLong(x.content,from,to):''})}
+  return e;
+}
+async function translateWholeStudy(){
+  if(!owner||!currentStudy)return;
+  const from=studyLang(currentStudy), to=from==='en'?'es':'en';
+  openDialog('🌐 '+t('translating'),`<p id="mtProgress">…</p><p class="smallHelp">${t('mtNote')}</p>`);
+  const prog=msg=>{const el=$('#mtProgress');if(el)el.textContent=msg};
+  try{
+    prog(currentStudy.title+' …');
+    const st={
+      title:await mtLong(currentStudy.title,from,to),
+      subtitle:await mtLong(currentStudy.subtitle||'',from,to),
+      description:await mtLong(currentStudy.description||'',from,to)
+    };
+    const trStudies={...(branding.trStudies||{})};
+    trStudies[currentStudy.id]={...(trStudies[currentStudy.id]||{}),[to]:st};
+    await setDoc(doc(db,'branding','translations'),{items:trStudies,updatedAt:new Date().toISOString()});
+    branding.trStudies=trStudies;
+    for(let i=0;i<topics.length;i++){
+      const tp=topics[i];
+      prog(`${i+1}/${topics.length}: ${tp.title}`);
+      const e=await translateTopicData(tp,from,to);
+      await setDoc(doc(db,'studies',currentStudy.id,'topics',tp.id),{['tr_'+to]:e},{merge:true});
+      tp['tr_'+to]=e;
+    }
+    prog('✓ '+t('translateDone'));
+  }catch(err){prog('⚠ '+err.message)}
+}
+
 function bind(){
   const on=(sel,event,fn)=>{
     const el=$(sel);
@@ -1386,11 +1533,11 @@ function bind(){
   const readPassage=()=>{
     const t=topics[currentTopic];
     if(!t){openDialog(I18N[lang].readFullT,I18N[lang].openTopicFirst);return}
-    openDialog(I18N[lang].readFullT,(t.verses||[]).map(r=>`<div class="supportItem"><button data-ref="${r}">📖 ${r}</button><p>${verses[r]||''}</p></div>`).join(''));
+    openDialog(I18N[lang].readFullT,(t.verses||[]).map(r=>`<div class="supportItem"><button data-ref="${r}">📖 ${refDisplay(r)}</button><p>${displayVerseText(r)||''}</p></div>`).join(''));
   };
   on('#readFull','click',readPassage);
   on('#whatBible','click',readPassage);
-  on('#keyObs','click',()=>openDialog(t('keyObsT'),`<p>${topics[currentTopic]?.bible_first||''}</p>`+videoGrid(topics[currentTopic]?.bible_videos)));
+  on('#keyObs','click',()=>openDialog(t('keyObsT'),`<p>${trTopic(topics[currentTopic])?.bible_first||''}</p>`+videoGrid(topics[currentTopic]?.bible_videos)));
   on('#closeDialog','click',()=>$('#dialog')?.close());
 
   on('#aboutBtn','click',()=>openDialog(t('aboutT'),t('aboutB')));
@@ -1541,6 +1688,7 @@ function bind(){
   });
   on('#runDiagBtn','click',()=>runDiagnostics());
   on('#deleteStudyBtn','click',()=>deleteCustomStudy().catch(e=>openDialog('Delete',`<p>${esc(e.message)}</p>`)));
+  on('#translateStudyBtn','click',()=>translateWholeStudy());
   on('#editTopicIcon','input',e=>{topicIconDraft=e.target.value.trim()});
   on('#clearTopicIcon','click',()=>{topicIconDraft='';$('#editTopicIcon').value='';$('#editTopicIconFile').value=''});
   on('#editTopicIconFile','change',async e=>{

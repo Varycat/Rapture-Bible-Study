@@ -1,0 +1,23 @@
+V34: switching language now translates the CONTENT, not just the menus.
+
+1. BIBLE VERSES — automatic, from a real Spanish Bible (not machine translation)
+   - When the language is Español and a Spanish Bible is installed (Settings ->
+     📖 Bible Versions -> Reina Valera), every verse in the app — the featured
+     verse, verse dialogs, Read Full Passage — displays the Reina Valera text.
+   - Book names also translate (1 Thessalonians 4:16 -> 1 Tesalonicenses 4:16).
+   - Switch back to English and the original text returns.
+   - REQUIRED ONE-TIME STEP: install "Reina Valera (Español)" as the owner.
+
+2. STUDY TEXT — one-click automatic translation (owner)
+   - Open a study -> ✎ Edit Study -> "🌐 Translate study + all topics".
+   - Translates the study title/subtitle/description and every topic (titles,
+     summaries, teachings, Bible-first text, takeaways, notes, extra sections)
+     using a free public translation service, with live progress.
+   - Saved to Firestore (topic tr_es fields + branding/translations), so every
+     reader who switches to Español sees it instantly — library cards, sidebar,
+     topic pages, dialogs.
+   - It is machine translation: review it, and re-run after editing the
+     original. Editing always works on the original language.
+   - Works in both directions (a Spanish study translates to English).
+
+Cache/assets bumped to v34. No new Firestore rules needed.
