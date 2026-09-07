@@ -272,6 +272,7 @@ function applyLang(){
   ensureLangBible(lang).then(()=>{
     if(currentStudy&&!$('#topicView').hidden&&topics[currentTopic])renderTopic();
   }).catch(()=>{});
+  autoTranslateKick();
   refreshProgressUI();
   refreshNotesScope();
   if($('#biblePanel')&&!bibleData)renderBibleReader();
@@ -590,6 +591,7 @@ async function openStudy(id){
   $('#studyVideos').innerHTML=videoGrid(currentStudy.videos);
   applyStudyHeaderBanner();
   showStudy();
+  autoTranslateOpenStudy();
 }
 function renderTopicIndex(q=''){
   const m=topics.filter(t=>(t.title+' '+(t.subtitle||'')+' '+(t.verses||[]).join(' ')).toLowerCase().includes(q.toLowerCase()));
@@ -1168,6 +1170,7 @@ async function loadBranding(){
   }catch(e){console.warn('Branding not loaded:',e.message)}
   mergeCatalog();
   applyPhotos();
+  autoTranslateKick();
   if(studies.length&&!$('#libraryView').hidden)renderLibrary();
 }
 async function saveBranding(){
@@ -1508,6 +1511,64 @@ async function translateWholeStudy(){
     if(!$('#studyView').hidden)renderTopicIndex();
     if(!$('#topicView').hidden&&topics[currentTopic])renderTopic();
   }catch(err){prog('⚠ '+err.message)}
+}
+
+/* ===== v37: Automatic translation — owner switches language, everything translates itself ===== */
+let autoMtBusy=false;
+function mtToast(msg){
+  let el=$('#mtToast');
+  if(!el){el=document.createElement('div');el.id='mtToast';el.className='mtToast';document.body.appendChild(el)}
+  el.textContent=msg||'';el.hidden=!msg;
+}
+async function autoTranslateCards(){
+  if(!owner||autoMtBusy||!studies.length)return;
+  const to=lang;
+  const missing=studies.filter(st=>studyLang(st)!==to&&!((branding.trStudies||{})[st.id]?.[to]));
+  if(!missing.length)return;
+  autoMtBusy=true;
+  try{
+    const trStudies={...(branding.trStudies||{})};
+    for(const st of missing){
+      mtToast('🌐 '+st.title+'…');
+      const from=studyLang(st);
+      trStudies[st.id]={...(trStudies[st.id]||{}),[to]:{
+        title:await mtLong(st.title,from,to),
+        subtitle:await mtLong(st.subtitle||'',from,to),
+        description:await mtLong(st.description||'',from,to)
+      }};
+    }
+    await setDoc(doc(db,'branding','translations'),{items:trStudies,updatedAt:new Date().toISOString()});
+    branding.trStudies=trStudies;
+    if(!$('#libraryView').hidden){renderLibrary();if(!currentStudy)renderSidebar($('#search')?.value||'')}
+    if(currentStudy)renderStudyHeader();
+  }catch(e){console.warn('Auto-translate (cards):',e.message)}
+  mtToast('');
+  autoMtBusy=false;
+}
+async function autoTranslateOpenStudy(){
+  if(!owner||!currentStudy||autoMtBusy)return;
+  const to=lang, from=studyLang(currentStudy);
+  if(to===from)return;
+  const missing=topics.filter(tp=>!tp['tr_'+to]);
+  if(!missing.length)return;
+  autoMtBusy=true;
+  try{
+    for(let i=0;i<missing.length;i++){
+      const tp=missing[i];
+      mtToast(`🌐 ${i+1}/${missing.length}: ${tp.title}`);
+      const e=await translateTopicData(tp,from,to);
+      await setDoc(doc(db,'studies',currentStudy.id,'topics',tp.id),{['tr_'+to]:e},{merge:true});
+      tp['tr_'+to]=e;
+      if(!$('#studyView').hidden)renderTopicIndex();
+      if(!$('#topicView').hidden&&topics[currentTopic])renderTopic();
+    }
+    renderStudyHeader();
+  }catch(e){console.warn('Auto-translate (topics):',e.message)}
+  mtToast('');
+  autoMtBusy=false;
+}
+function autoTranslateKick(){
+  autoTranslateCards().then(()=>autoTranslateOpenStudy()).catch(()=>{});
 }
 
 function bind(){

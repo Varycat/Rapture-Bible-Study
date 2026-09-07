@@ -1,0 +1,12 @@
+V37: translation is now AUTOMATIC for the owner.
+- When the owner switches the language (EN <-> ES), the app automatically
+  translates everything that is missing: study titles/subtitles/descriptions
+  in the menu and library cards, and — when a study is open — all its topics.
+- A small blue progress bubble at the bottom-left shows what is being
+  translated; results save to Firestore as they finish, so readers see them
+  too without any action.
+- Opening a study while in the other language also auto-translates it.
+- The manual "🌐 Translate this study" button remains (to force a re-run
+  after editing the original text).
+- Readers never trigger machine translation; they see the saved translations.
+- Cache/assets bumped to v37.

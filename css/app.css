@@ -596,3 +596,7 @@ dialog::-webkit-scrollbar{width:0;height:0;display:none}
 
 /* ---------- v34 ---------- */
 .editorActions{gap:9px}
+
+/* ---------- v37 Auto-translate toast ---------- */
+.mtToast{position:fixed;left:16px;bottom:16px;z-index:960;background:var(--app-primary,#0c73e6);color:#fff;font-weight:800;font-size:14px;border-radius:999px;padding:11px 18px;box-shadow:0 10px 30px rgba(0,25,80,.35);max-width:min(420px,80vw);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mtToast[hidden]{display:none}
